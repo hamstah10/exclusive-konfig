@@ -15,8 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { getResult, stageConfigs, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID } from '@/lib/configurator-store';
 import { getEcuManufacturer } from '@/lib/ecu';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { VersionToggle } from '@/components/VersionToggle';
+import { SiteHeader } from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 
 function mergedCompareData(stages: { dynoPoints: { rpm: number; power: number; torque: number }[] }[]) {
   const s1 = stages[0]?.dynoPoints ?? [];
@@ -52,7 +52,7 @@ export default function ConfiguratorResultPageV2() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
         <AlertTriangle className="h-8 w-8 text-muted-foreground" />
         <p className="text-muted-foreground">Konfiguration nicht gefunden.</p>
-        <Link to="/v2">
+        <Link to="/konfigurator">
           <Button variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-1" />
             Neue Konfiguration starten
@@ -77,27 +77,30 @@ export default function ConfiguratorResultPageV2() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/v2" className="text-lg font-bold tracking-tight text-foreground">
-            Chiptuning Konfigurator
-          </a>
+      <SiteHeader variant="solid" />
+
+      <div className="bg-brand-dark text-white py-8 border-b border-[hsl(var(--brand-gold))]/20">
+        <div className="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span className="text-xs uppercase tracking-[0.3em] text-brand-gold">Deine Konfiguration</span>
+            <h1 className="font-display text-2xl md:text-3xl mt-1">
+              {vehicle.brand} <span className="italic text-brand-gold">{vehicle.model}</span>
+            </h1>
+          </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleCopyLink} className="gap-1.5 text-xs">
+            <Button variant="ghost" size="sm" onClick={handleCopyLink} className="gap-1.5 text-xs text-white hover:bg-white/10 hover:text-brand-gold">
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? 'Kopiert' : 'Link teilen'}
             </Button>
-            <Link to="/v2">
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Link to="/konfigurator">
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-brand-gold">
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Neue Konfiguration
               </Button>
             </Link>
-            <VersionToggle />
-            <ThemeToggle />
           </div>
         </div>
-      </header>
+      </div>
 
       <main className="max-w-5xl mx-auto px-6 py-10 space-y-8">
         {/* Vehicle Header */}
@@ -308,6 +311,7 @@ export default function ConfiguratorResultPageV2() {
         </motion.div>
 
       </main>
+      <SiteFooter />
     </div>
   );
 }
