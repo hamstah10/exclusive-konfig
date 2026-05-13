@@ -217,6 +217,337 @@ export type Database = {
         }
         Relationships: []
       }
+      valuation_analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          funnel_step: number | null
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          source: string
+          step_label: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          funnel_step?: number | null
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          source?: string
+          step_label?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          funnel_step?: number | null
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          source?: string
+          step_label?: string | null
+        }
+        Relationships: []
+      }
+      valuation_follow_ups: {
+        Row: {
+          created_at: string
+          due_at: string
+          id: string
+          lead_id: string
+          sent_at: string | null
+          status: string
+          template: string
+        }
+        Insert: {
+          created_at?: string
+          due_at: string
+          id?: string
+          lead_id: string
+          sent_at?: string | null
+          status?: string
+          template: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string
+          id?: string
+          lead_id?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valuation_follow_ups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "valuation_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      valuation_lead_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_type: string
+          id: string
+          lead_id: string
+          payload: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_type: string
+          id?: string
+          lead_id: string
+          payload?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_type?: string
+          id?: string
+          lead_id?: string
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valuation_lead_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "valuation_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      valuation_leads: {
+        Row: {
+          accident_free: Database["public"]["Enums"]["valuation_yesno"]
+          admin_note: string | null
+          brand: string
+          condition: Database["public"]["Enums"]["valuation_condition"]
+          contact_channel: Database["public"]["Enums"]["valuation_channel"]
+          created_at: string
+          customer_notes: string | null
+          email: string
+          estimated_value_max: number | null
+          estimated_value_min: number | null
+          estimated_value_rationale: string | null
+          estimated_value_typical: number | null
+          expenses_eur: number | null
+          first_name: string
+          fuel: Database["public"]["Enums"]["valuation_fuel"]
+          gearbox: Database["public"]["Enums"]["valuation_gearbox"]
+          has_tuev: Database["public"]["Enums"]["valuation_tuev"]
+          id: string
+          last_name: string
+          lead_score: number | null
+          mileage: number
+          model: string
+          phone: string
+          photo_urls: string[]
+          preferred_date: string
+          preferred_time: Database["public"]["Enums"]["valuation_time"]
+          purchase_price: number | null
+          purchased_at: string | null
+          sale_price: number | null
+          sold_at: string | null
+          status: Database["public"]["Enums"]["valuation_lead_status"]
+          updated_at: string
+          user_id: string | null
+          year: number
+        }
+        Insert: {
+          accident_free: Database["public"]["Enums"]["valuation_yesno"]
+          admin_note?: string | null
+          brand: string
+          condition: Database["public"]["Enums"]["valuation_condition"]
+          contact_channel: Database["public"]["Enums"]["valuation_channel"]
+          created_at?: string
+          customer_notes?: string | null
+          email: string
+          estimated_value_max?: number | null
+          estimated_value_min?: number | null
+          estimated_value_rationale?: string | null
+          estimated_value_typical?: number | null
+          expenses_eur?: number | null
+          first_name: string
+          fuel: Database["public"]["Enums"]["valuation_fuel"]
+          gearbox: Database["public"]["Enums"]["valuation_gearbox"]
+          has_tuev: Database["public"]["Enums"]["valuation_tuev"]
+          id?: string
+          last_name: string
+          lead_score?: number | null
+          mileage: number
+          model: string
+          phone: string
+          photo_urls?: string[]
+          preferred_date: string
+          preferred_time: Database["public"]["Enums"]["valuation_time"]
+          purchase_price?: number | null
+          purchased_at?: string | null
+          sale_price?: number | null
+          sold_at?: string | null
+          status?: Database["public"]["Enums"]["valuation_lead_status"]
+          updated_at?: string
+          user_id?: string | null
+          year: number
+        }
+        Update: {
+          accident_free?: Database["public"]["Enums"]["valuation_yesno"]
+          admin_note?: string | null
+          brand?: string
+          condition?: Database["public"]["Enums"]["valuation_condition"]
+          contact_channel?: Database["public"]["Enums"]["valuation_channel"]
+          created_at?: string
+          customer_notes?: string | null
+          email?: string
+          estimated_value_max?: number | null
+          estimated_value_min?: number | null
+          estimated_value_rationale?: string | null
+          estimated_value_typical?: number | null
+          expenses_eur?: number | null
+          first_name?: string
+          fuel?: Database["public"]["Enums"]["valuation_fuel"]
+          gearbox?: Database["public"]["Enums"]["valuation_gearbox"]
+          has_tuev?: Database["public"]["Enums"]["valuation_tuev"]
+          id?: string
+          last_name?: string
+          lead_score?: number | null
+          mileage?: number
+          model?: string
+          phone?: string
+          photo_urls?: string[]
+          preferred_date?: string
+          preferred_time?: Database["public"]["Enums"]["valuation_time"]
+          purchase_price?: number | null
+          purchased_at?: string | null
+          sale_price?: number | null
+          sold_at?: string | null
+          status?: Database["public"]["Enums"]["valuation_lead_status"]
+          updated_at?: string
+          user_id?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      valuation_market_data: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          max_price: number | null
+          median_price: number | null
+          min_price: number | null
+          raw: Json | null
+          recommended_price: number | null
+          sample_count: number | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          max_price?: number | null
+          median_price?: number | null
+          min_price?: number | null
+          raw?: Json | null
+          recommended_price?: number | null
+          sample_count?: number | null
+          source: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          max_price?: number | null
+          median_price?: number | null
+          min_price?: number | null
+          raw?: Json | null
+          recommended_price?: number | null
+          sample_count?: number | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valuation_market_data_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "valuation_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      valuation_photo_analysis: {
+        Row: {
+          analysis: Json
+          analyzed_at: string
+          id: string
+          lead_id: string
+          revaluation: Json | null
+        }
+        Insert: {
+          analysis: Json
+          analyzed_at?: string
+          id?: string
+          lead_id: string
+          revaluation?: Json | null
+        }
+        Update: {
+          analysis?: Json
+          analyzed_at?: string
+          id?: string
+          lead_id?: string
+          revaluation?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valuation_photo_analysis_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "valuation_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      valuation_purchase_contracts: {
+        Row: {
+          contract_data: Json
+          generated_at: string
+          generated_by: string | null
+          id: string
+          lead_id: string
+          pdf_url: string | null
+        }
+        Insert: {
+          contract_data: Json
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          lead_id: string
+          pdf_url?: string | null
+        }
+        Update: {
+          contract_data?: Json
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          lead_id?: string
+          pdf_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valuation_purchase_contracts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "valuation_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -248,6 +579,25 @@ export type Database = {
         | "angebot_versendet"
         | "abgeschlossen"
         | "abgelehnt"
+      valuation_channel: "telefon" | "email" | "whatsapp"
+      valuation_condition:
+        | "sehr_gut"
+        | "gut"
+        | "gebraucht"
+        | "maengel"
+        | "defekt"
+      valuation_fuel: "benzin" | "diesel" | "hybrid" | "elektro" | "lpg" | "cng"
+      valuation_gearbox: "manuell" | "automatik"
+      valuation_lead_status:
+        | "neu"
+        | "qualifiziert"
+        | "kontaktiert"
+        | "termin"
+        | "gekauft"
+        | "abgesagt"
+      valuation_time: "vormittag" | "nachmittag" | "abend" | "egal"
+      valuation_tuev: "ja" | "nein" | "abgelaufen"
+      valuation_yesno: "ja" | "nein"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -395,6 +745,27 @@ export const Constants = {
         "abgeschlossen",
         "abgelehnt",
       ],
+      valuation_channel: ["telefon", "email", "whatsapp"],
+      valuation_condition: [
+        "sehr_gut",
+        "gut",
+        "gebraucht",
+        "maengel",
+        "defekt",
+      ],
+      valuation_fuel: ["benzin", "diesel", "hybrid", "elektro", "lpg", "cng"],
+      valuation_gearbox: ["manuell", "automatik"],
+      valuation_lead_status: [
+        "neu",
+        "qualifiziert",
+        "kontaktiert",
+        "termin",
+        "gekauft",
+        "abgesagt",
+      ],
+      valuation_time: ["vormittag", "nachmittag", "abend", "egal"],
+      valuation_tuev: ["ja", "nein", "abgelaufen"],
+      valuation_yesno: ["ja", "nein"],
     },
   },
 } as const
