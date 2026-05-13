@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowRight, Inbox, LogOut, Loader2, FileText, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -71,8 +71,18 @@ function fmtDate(iso: string) {
 
 export default function PortalPage() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { leadId: focusLeadId } = useParams();
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [attachments, setAttachments] = useState<Record<string, Attachment[]>>({});
+  const focusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!focusLeadId || !leads) return;
+    const el = document.getElementById(`lead-${focusLeadId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [focusLeadId, leads]);
 
   useEffect(() => {
     if (!user) return;
@@ -198,7 +208,16 @@ export default function PortalPage() {
               const meta = STATUS_META[lead.status];
               const vehicle = findVehicle(lead.vehicle_id ?? lead.vehicle_slug);
               return (
-                <article key={lead.id} className="bg-card border border-border p-6">
+                <article
+                  key={lead.id}
+                  id={`lead-${lead.id}`}
+                  ref={(node) => { if (lead.id === focusLeadId) focusedRef.current = node; }}
+                  className={`bg-card border p-6 transition-all ${
+                    lead.id === focusLeadId
+                      ? 'border-[hsl(var(--brand-gold))] shadow-[0_0_0_3px_hsl(var(--brand-gold)/0.15)]'
+                      : 'border-border'
+                  }`}
+                >
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
                     <Link
                       to={`/fahrzeuge/${lead.vehicle_slug}`}
