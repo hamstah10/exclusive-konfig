@@ -53,6 +53,47 @@ function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-dark))]/80 via-transparent to-transparent" />
 
+      {/* Animated water shimmer over the sea area in the hero image */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] overflow-hidden mix-blend-screen opacity-60"
+        style={{
+          maskImage:
+            'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(180deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 6px, rgba(255,255,255,0.08) 7px, rgba(255,255,255,0) 8px)',
+            animation: 'waterShimmer 9s linear infinite',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(ellipse at 30% 60%, rgba(212,175,90,0.18), transparent 55%), radial-gradient(ellipse at 70% 40%, rgba(255,255,255,0.12), transparent 60%)',
+            animation: 'waterDrift 14s ease-in-out infinite alternate',
+            filter: 'blur(6px)',
+          }}
+        />
+        <style>{`
+          @keyframes waterShimmer {
+            0%   { transform: translate3d(-2%, 0, 0) skewY(-0.4deg); }
+            50%  { transform: translate3d(2%, 1px, 0) skewY(0.4deg); }
+            100% { transform: translate3d(-2%, 0, 0) skewY(-0.4deg); }
+          }
+          @keyframes waterDrift {
+            0%   { transform: translate3d(-3%, 0, 0) scale(1.05); opacity: 0.55; }
+            100% { transform: translate3d(3%, -2%, 0) scale(1.1); opacity: 0.85; }
+          }
+        `}</style>
+      </div>
+
       <div className="relative max-w-7xl mx-auto px-6 pb-32 md:pb-40 pt-32 w-full">
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
