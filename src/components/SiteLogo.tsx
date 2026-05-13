@@ -59,8 +59,8 @@ export function SiteLogo({
 
   const inner = (
     <span className="inline-flex items-center gap-2.5 leading-none">
-      <span className={`font-display italic text-[hsl(var(--brand-gold))] ${sizes.exclusiv} tracking-tight`}>
-        exclusiv
+       <span className="font-display italic text-[hsl(var(--brand-gold))] tracking-tight font-serif text-2xl font-medium">
+         exclusive
       </span>
       <span className={`font-display uppercase tracking-tight ${ink} ${sizes.automobile}`}>
         Automobile
@@ -72,7 +72,7 @@ export function SiteLogo({
   if (!asLink) return <span className={className}>{inner}</span>;
 
   return (
-    <Link to="/" className={`inline-flex ${className}`} aria-label="exclusiv Automobile Rügen">
+     <Link to="/" className={`inline-flex ${className}`} aria-label="exclusive Automobile Rügen">
       {inner}
     </Link>
   );
