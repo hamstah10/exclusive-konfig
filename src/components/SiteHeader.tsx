@@ -33,8 +33,14 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
         { label: 'Ankauf', to: '/#ankauf' },
       ],
     },
-    { label: t('nav.chiptuning'), to: '/#chiptuning' },
-    { label: t('nav.dyno'), to: '/#pruefstand' },
+    {
+      label: t('nav.chiptuning'),
+      to: '/#chiptuning',
+      children: [
+        { label: t('nav.chiptuning'), to: '/#chiptuning' },
+        { label: t('nav.dyno'), to: '/#pruefstand' },
+      ],
+    },
     { label: t('nav.wheels'), to: '/#raeder' },
     { label: 'Finanzierung', to: '/#finanzierung' },
     { label: t('nav.contact'), to: '/#kontakt' },
