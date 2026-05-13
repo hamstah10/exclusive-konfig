@@ -1,71 +1,104 @@
-# Plan: Configurator V2
+## Ziel
 
-## Routing & Einstieg
+Den kompletten Ankauf-Flow aus dem AutoFux-Projekt 1:1 funktional übernehmen, aber visuell und strukturell vollständig in die bestehende exclusiv-Automobile-Rügen-Seite integrieren. Eigener Bereich unter `/ankauf`, eigener Voice-Button (ElevenLabs), eigenes Admin-Modul `/portal/ankauf`.
 
-- Neue Routen in `src/App.tsx`:
-  - `/v2` → `ConfiguratorPageV2`
-  - `/v2/configurator/:id` → `ConfiguratorResultPageV2`
-- Toggle „V1 / V2" im Header beider Startseiten (`/` und `/v2`), klein neben `ThemeToggle`. Aktueller Pfad bestimmt aktiven Zustand, Klick navigiert zur jeweils anderen Variante.
-- V1 bleibt unverändert.
+## Scope-Abgrenzung
 
-## Flow auf `/v2` (ConfiguratorPageV2)
+**Übernommen** (gehört zum Ankauf):
+Bewertungs-Funnel (5 Schritte), KI-Bewertung, Voice-Agent (ElevenLabs), Foto-Upload + KI-Foto-Analyse, Lead-Score, Lead-Emails an Kunde + Admin, Telegram-Benachrichtigung, Follow-Up-Automation, Markt-Daten-Scraping, Funnel-Analytics-Dashboard, Business-Dashboard (Käufe/Marge), Lead-Timeline, Kaufvertrag-PDF, Wochen-Report.
 
-Schritt-Logik via lokalem State `step: 'select' | 'configure'`:
+**NICHT übernommen** (ist Verkaufs-Seite, eigener Vertrieb, oder doppelt vorhanden):
+Public-Fahrzeug-Listings (`/fahrzeuge` ist schon da), Watchlist, Hero-Model, Inserate/Marketplace-Export, AB-Preis-Vorschläge, Stripe/Reservierungen, Vehicle-Database als Nachschlagwerk (du hast bereits eigene Vehicle-DB-API), AdminLayout/AdminSidebar (eigenes Portal vorhanden).
 
-**Schritt 1 – Fahrzeug wählen** (`step === 'select'`)
-- Header + Schnellsuche + Marke/Modell/Baujahr/Motorcode/ECU/Getriebe/Kraftstoff/PS/Nm wie heute.
-- **Keine** Stage-Karten, **keine** Live-Preview, **kein** Submit-Button.
-- Statt Submit: Button „Weiter zur Stage-Auswahl" (enabled wenn `isValid`).
-- Auto-Detect-Banner bleibt.
+## Routen & Integration
 
-**Schritt 2 – Stage konfigurieren** (`step === 'configure'`)
-- Oben kompakte Fahrzeug-Zusammenfassung (Marke/Modell, Motorcode, Stock PS/Nm) + Button „Fahrzeug ändern" → zurück zu Schritt 1 (State bleibt erhalten).
-- Stage-Karten (wie heute) + Live-Preview.
-- Submit „Stage X Empfehlung generieren" → erzeugt Result, Navigation zu `/v2/configurator/:id`.
-
-## Result-Page V2 (`ConfiguratorResultPageV2`)
-
-Basiert auf der bestehenden Result-Page mit folgenden Änderungen:
-
-- **Stats-Row**: „Risiko" und „Erstellt" entfernen → zwei Karten bleiben (PS, Nm). Grid auf `md:grid-cols-2` reduzieren oder durch zwei zusätzliche Stats ersetzen (z. B. „Stage" + „Gesamtpreis"). Vorschlag: durch **Stage-Label** und **Gesamtpreis** ersetzen, damit Layout 4-spaltig bleibt.
-- **Tuning-Optionen Sektion** (neu, unter Komponenten/Beschreibung):
-  - Überschrift „Tuning-Optionen" + Untertitel „Verfügbare Zusatz-Features für diese Stage".
-  - Grid mit Icon + Label-Kacheln (statisch, nur Anzeige):
-    - **ECU Hersteller** (eigener Block oben mit Badge: abgeleitet aus `vehicle.ecu_type` → `Bosch`, `Siemens`, `Marelli`, `Continental`, `Delphi`, sonst „ECU"; Pill-Style mit kleinem Logo-Kürzel).
-    - Optionen: `DTC OFF`, `E85 Flex-Fuel`, `Kaltstart OFF`, `KAT OFF`, `Pops & Bangs`, `V/MAX Off`, `Vmax 30`.
-  - Lucide-Icons als Platzhalter: `Settings2`, `Snowflake`, `Flame`, `Gauge`, `Lock`, `Zap`, `Fuel`. Pro Kachel: Icon links, Label rechts, `bg-card border rounded-md p-3`.
-  - Hinweistext: „Optionen sind informativ – bitte beim Termin freischalten lassen."
-- **Disclaimer & API Trace** bleiben.
-- Header: Statt „Neue Konfiguration" → Link zu `/v2`.
-
-## ECU-Hersteller-Ableitung
-
-Hilfsfunktion `getEcuManufacturer(ecuType?: string): string` in `src/lib/configurator-store.ts` (oder neuer `src/lib/ecu.ts`):
-```ts
-if (/bosch/i) return 'Bosch';
-if (/marelli/i) return 'Marelli';
-if (/siemens|simos/i) return 'Siemens';
-if (/conti/i) return 'Continental';
-if (/delphi/i) return 'Delphi';
-return 'ECU';
+```
+/ankauf                  → Bewertungs-Funnel (5 Schritte)
+/ankauf/danke            → Bestätigungsseite mit Preis-Range
+/portal/ankauf           → Lead-Liste (Ankauf-Leads)
+/portal/ankauf/:id       → Lead-Detail (Timeline, Foto-Analyse, Markt-Daten, Kaufvertrag, Email-Historie)
+/portal/ankauf/analytics → Funnel-Analytics
+/portal/ankauf/business  → Business-Dashboard (Käufe, Marge, Aufwand)
 ```
 
-## Geteilte Bausteine
+Voice-Button (Mikrofon, gold) wird global gemountet und steuert ausschließlich den Ankauf-Funnel — vor Verbindung navigiert er bei Bedarf nach `/ankauf`.
 
-- `VehicleSearch`, `ThemeToggle`, `stageConfigs`, `generateRecommendation`, `getResult` werden wiederverwendet.
-- Keine Änderungen an V1-Pages, Store oder Datentypen.
+## Datenbank (neue Tabellen)
 
-## Neue / geänderte Dateien
+Eigene `valuation_leads`-Tabelle, damit der bestehende `leads`-Flow (Verkauf/Konfigurator) nicht beeinflusst wird:
 
-- `src/App.tsx` – Routes `/v2`, `/v2/configurator/:id`.
-- `src/components/VersionToggle.tsx` – kleiner V1/V2-Switch (Headerelement).
-- `src/pages/ConfiguratorPageV2.tsx` – neuer Zwei-Schritt-Flow.
-- `src/pages/ConfiguratorResultPageV2.tsx` – Stats angepasst, Tuning-Optionen, ECU-Badge.
-- `src/lib/ecu.ts` – `getEcuManufacturer` Helper.
-- `src/pages/ConfiguratorPage.tsx`, `src/pages/ConfiguratorResultPage.tsx` – nur Header bekommen `<VersionToggle />`.
-- Memory `mem://features/configurator` + `mem://index.md` – V2-Flow notieren.
+- `valuation_leads` — Fahrzeugdaten, Zustand, Kontakt, Termin, KI-Bewertung (`min_eur`, `typical_eur`, `max_eur`, `rationale`), Foto-URLs, Status (`neu`, `qualifiziert`, `kontaktiert`, `termin`, `gekauft`, `abgesagt`), `lead_score`, `purchased_at`, `purchase_price`, `sold_at`, `sale_price`, `expenses_eur`, `admin_notes`.
+- `valuation_market_data` — Markt-Vergleichspreise pro Lead.
+- `valuation_photo_analysis` — KI-Befunde + Re-Bewertung pro Lead.
+- `valuation_lead_events` — Timeline-Events.
+- `analytics_events` — Funnel-Tracking (`source = 'valuation_funnel'`).
+- `purchase_contracts` — generierte PDFs/Vertragsdaten.
+- `follow_up_jobs` + Cron — automatische Erinnerungen.
 
-## Offen / Annahmen
+Storage-Bucket `valuation-photos` (öffentlich-lesbar mit signierten URLs für Detail-Ansicht).
 
-- Tuning-Optionen-Liste ist für alle Stages identisch (nur Anzeige). Falls stage-spezifisch gewünscht, später erweiterbar.
-- Stats-Karten „Risiko/Erstellt" werden durch „Stage/Gesamtpreis" ersetzt. Falls stattdessen 2-spaltig gewünscht, sag Bescheid.
+RLS: Insert öffentlich (anon + authenticated), Select/Update nur Admin (über vorhandene `has_role`).
+
+## Edge Functions (übernommen / angepasst)
+
+- `valuate-vehicle` — KI-Bewertung über Lovable AI Gateway (gpt-5 für Reasoning).
+- `analyze-lead-photos` — Foto-Analyse via gemini-2.5-pro (Vision), aktualisiert Bewertung.
+- `compute-lead-score` — heuristische Score-Berechnung.
+- `scrape-market-data` — Markt-Vergleichspreise.
+- `notify-lead-telegram` — Telegram-Bot-Nachricht (optional, nur wenn `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` gesetzt).
+- `send-transactional-email` + `process-email-queue` + `auth-email-hook` — Email-Infrastruktur (nur wenn nicht schon vorhanden).
+- `process-follow-ups` — Cron-Job für Follow-Up-Versand.
+- `generate-counter-replies` — KI-Antworten für Preisverhandlung.
+- `generate-purchase-contract` — Kaufvertrag als PDF.
+- `send-weekly-report` — Wochen-Zusammenfassung an Admin.
+- `elevenlabs-conversation-token` — neu, generiert WebRTC-Token (Agent-ID übernommen).
+
+## Voice-Agent
+
+ElevenLabs React-SDK (`@elevenlabs/react`). Agent-ID aus AutoFux übernommen (`agent_6201kpp7yr7zfa5rzr5ebzhszytx`) — kann später in den Settings ausgetauscht werden. Client-Tools `setVehicleData` / `setConditionData` / `setContactData` / `setAppointmentData` / `openValuationFunnel` / `submitValuation` füllen den Funnel live mit Typewriter-Effekt. Authentifizierung über serverseitig generierten Conversation-Token (`elevenlabs-conversation-token`-Edge-Function), damit der API-Key nie im Client landet.
+
+## Branding-Anpassung
+
+Funnel und Admin-Module werden auf das exclusiv-Design umgestellt:
+- `SiteHeader` (overlay/solid) + `SiteFooter` statt AutoFux-Header.
+- Container `max-w-5xl mx-auto px-6`, Stepper in Gold/Dark-Navy.
+- Headlines `font-display` mit Gold-Hervorhebung im Eyebrow-Pattern.
+- Buttons als bestehende `Button`-Komponente, primär Gold.
+- Voice-Button rund, Gold (`bg-[hsl(var(--brand-gold))]`), Schatten `shadow-elegant`.
+- Admin-Seiten nutzen das vorhandene `/portal`-Layout.
+
+## Komponenten-Mapping
+
+| AutoFux | Hier |
+|---|---|
+| `pages/Bewertung.tsx` | `pages/AnkaufFunnel.tsx` |
+| `pages/Danke.tsx` | `pages/AnkaufDanke.tsx` |
+| `components/funnel/*` | `components/ankauf/*` (komplett übernommen, Klassen umgeschrieben) |
+| `components/voice/VoiceAgentButton.tsx` | `components/ankauf/VoiceAgentButton.tsx` |
+| `contexts/ValuationDraftContext` | 1:1 übernommen |
+| `contexts/FunnelProgressContext` | 1:1 übernommen |
+| `hooks/use-vehicle-valuation` | 1:1 übernommen |
+| `lib/valuation-schema` / `valuation-draft-mapper` / `lead-submission` / `analytics` | 1:1 übernommen, `submitLead` schreibt in `valuation_leads` |
+| `pages/admin/LeadDetail` | `pages/portal/AnkaufLeadDetail.tsx` |
+| `components/admin/AdminDashboard` | `pages/portal/AnkaufDashboard.tsx` |
+| `components/admin/BusinessDashboard` | `pages/portal/AnkaufBusiness.tsx` |
+| `components/admin/FunnelAnalyticsDashboard` | `pages/portal/AnkaufAnalytics.tsx` |
+| `components/admin/PhotoAnalysisPanel` / `PurchaseContractCard` / `LeadTimeline` / `MarketDataPanel` / `LeadScoreBadge` / `LeadEmailHistory` | übernommen |
+
+## API-Keys / Secrets
+
+- `LOVABLE_API_KEY` ✅ vorhanden (für Bewertung, Foto-Analyse, Counter-Replies).
+- `ELEVENLABS_API_KEY` — wird angefragt.
+- `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` — optional, wird angefragt (Telegram sonst übersprungen).
+- Email-Versand: Mailgun/Resend-Connector wird zum Schluss vorgeschlagen, sofern noch keiner verbunden ist.
+
+## Umsetzung in 6 Schritten
+
+1. **DB-Schicht** — Migration für `valuation_leads`, `valuation_market_data`, `valuation_photo_analysis`, `valuation_lead_events`, `analytics_events`, `purchase_contracts`, `follow_up_jobs`, RLS, Storage-Bucket `valuation-photos`.
+2. **Funnel-Frontend** — `lib/valuation-schema`, Contexts, Hook, Schritt-Komponenten in `components/ankauf/*`, Seiten `/ankauf` + `/ankauf/danke`, im exclusiv-Look mit `SiteHeader`/`SiteFooter`.
+3. **Edge Functions Bewertung** — `valuate-vehicle`, `compute-lead-score`, `analyze-lead-photos`, `scrape-market-data` deployen + Live-Bewertung im Funnel.
+4. **Voice-Agent** — `@elevenlabs/react` installieren, Edge-Function `elevenlabs-conversation-token`, `VoiceAgentButton` global mounten, Client-Tools verdrahten.
+5. **Notifications & Automation** — Telegram, Email-Infra (falls nötig), Follow-Ups, Counter-Replies, Wochen-Report; Bestätigungs-Mail nach Lead-Submit.
+6. **Admin-Module** — Lead-Liste, Lead-Detail (Timeline, Markt, Foto-Analyse, Vertrag, Email-Historie), Funnel-Analytics, Business-Dashboard unter `/portal/ankauf/*` integriert.
+
+Nach Schritt 1 melde ich mich für die Migration-Bestätigung; Secrets (`ELEVENLABS_API_KEY`) frage ich vor Schritt 4 an.
