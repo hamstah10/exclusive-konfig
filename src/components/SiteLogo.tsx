@@ -65,7 +65,6 @@ export function SiteLogo({
       <span className={`font-display uppercase tracking-tight ${ink} ${sizes.automobile}`}>
         Automobile
       </span>
-      <RuegenIcon className={`${sizes.icon} text-[hsl(var(--brand-gold))]`} />
     </span>
   );
 
