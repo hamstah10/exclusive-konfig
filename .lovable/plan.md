@@ -1,104 +1,50 @@
-## Ziel
+## Logo "exclusiv Automobile Rügen" — Monogramm + Insel
 
-Den kompletten Ankauf-Flow aus dem AutoFux-Projekt 1:1 funktional übernehmen, aber visuell und strukturell vollständig in die bestehende exclusiv-Automobile-Rügen-Seite integrieren. Eigener Bereich unter `/ankauf`, eigener Voice-Button (ElevenLabs), eigenes Admin-Modul `/portal/ankauf`.
+Premium Monogramm-Logo basierend auf der Brand-DNA (Gold #B89968 + Dark-Navy #1B2433). "eA"-Ligatur mit der Rügen-Insel-Silhouette als integrierter Akzent — kein Wortmarken-Logo.
 
-## Scope-Abgrenzung
+### Designkonzept
 
-**Übernommen** (gehört zum Ankauf):
-Bewertungs-Funnel (5 Schritte), KI-Bewertung, Voice-Agent (ElevenLabs), Foto-Upload + KI-Foto-Analyse, Lead-Score, Lead-Emails an Kunde + Admin, Telegram-Benachrichtigung, Follow-Up-Automation, Markt-Daten-Scraping, Funnel-Analytics-Dashboard, Business-Dashboard (Käufe/Marge), Lead-Timeline, Kaufvertrag-PDF, Wochen-Report.
+- **Monogramm "eA"** in Playfair Display, kursiv. Das geschwungene "e" und das großzügige "A" verschränken sich zu einer Ligatur.
+- **Rügen-Silhouette** in Gold, eingebaut als horizontaler Anker — fließt aus dem Querbalken des "A" oder unterstreicht das Monogramm wie eine geographische Grundlinie. Insel-Form anatomisch korrekt (langgestreckte Hauptform mit Halbinsel Wittow oben links, Mönchgut unten rechts).
+- **"exclusiv Automobile RÜGEN"** als feines uppercase-Label (tracking-[0.25em]) unter dem Monogramm — sehr eng gesetzt, fungiert als Untertitel, nicht als Hauptelement.
 
-**NICHT übernommen** (ist Verkaufs-Seite, eigener Vertrieb, oder doppelt vorhanden):
-Public-Fahrzeug-Listings (`/fahrzeuge` ist schon da), Watchlist, Hero-Model, Inserate/Marketplace-Export, AB-Preis-Vorschläge, Stripe/Reservierungen, Vehicle-Database als Nachschlagwerk (du hast bereits eigene Vehicle-DB-API), AdminLayout/AdminSidebar (eigenes Portal vorhanden).
+### Drei Ausgabevarianten
 
-## Routen & Integration
-
+```text
+1. HORIZONTAL (Header)         2. QUADRATISCH (Favicon)      3. STEMPEL (Footer/Print)
+   ┌──────────────────────┐    ┌────────────┐                 ┌──────────────────┐
+   │  ╱e╲A   exclusiv     │    │   ╱e╲A     │                 │  ⌜ ╱e╲A ⌝        │
+   │ ◢◣◣◢◤  AUTOMOBILE    │    │  ◢◣◣◢◤    │                 │  ◢◣◣◢◤          │
+   │       RÜGEN          │    │            │                 │ EST · EXCLUSIV   │
+   └──────────────────────┘    └────────────┘                 │ AUTOMOBILE RÜGEN │
+                                                              └──────────────────┘
 ```
-/ankauf                  → Bewertungs-Funnel (5 Schritte)
-/ankauf/danke            → Bestätigungsseite mit Preis-Range
-/portal/ankauf           → Lead-Liste (Ankauf-Leads)
-/portal/ankauf/:id       → Lead-Detail (Timeline, Foto-Analyse, Markt-Daten, Kaufvertrag, Email-Historie)
-/portal/ankauf/analytics → Funnel-Analytics
-/portal/ankauf/business  → Business-Dashboard (Käufe, Marge, Aufwand)
-```
 
-Voice-Button (Mikrofon, gold) wird global gemountet und steuert ausschließlich den Ankauf-Funnel — vor Verbindung navigiert er bei Bedarf nach `/ankauf`.
+### Umsetzung
 
-## Datenbank (neue Tabellen)
+1. **SVG-Komponente** `src/components/BrandLogo.tsx` (existiert bereits, wird ersetzt). Drei Varianten via Prop:
+   - `variant="horizontal"` — Header, Marketplace, Auth-Page
+   - `variant="mark"` — kompaktes Quadrat, ohne Untertitel
+   - `variant="stamp"` — kreisförmig/wappenartig für Footer
+2. **Rügen-Silhouette** als sauberer SVG-Pfad (handgezeichnet, vereinfacht aber wiedererkennbar — Wittow/Jasmund/Mönchgut als drei Halbinsel-Auswüchse), in Gold mit feiner Strichstärke.
+3. **Favicon** generiert aus der `mark`-Variante als 512×512 PNG → `public/favicon.png`, `index.html` aktualisiert.
+4. **SiteHeader** verwendet `<BrandLogo variant="horizontal" />` statt der drei `<span>`-Elemente.
+5. **SiteFooter** bekommt `<BrandLogo variant="stamp" />`.
+6. **AdminLayout** Sidebar nutzt `<BrandLogo variant="mark" />`.
 
-Eigene `valuation_leads`-Tabelle, damit der bestehende `leads`-Flow (Verkauf/Konfigurator) nicht beeinflusst wird:
+### Technische Details
 
-- `valuation_leads` — Fahrzeugdaten, Zustand, Kontakt, Termin, KI-Bewertung (`min_eur`, `typical_eur`, `max_eur`, `rationale`), Foto-URLs, Status (`neu`, `qualifiziert`, `kontaktiert`, `termin`, `gekauft`, `abgesagt`), `lead_score`, `purchased_at`, `purchase_price`, `sold_at`, `sale_price`, `expenses_eur`, `admin_notes`.
-- `valuation_market_data` — Markt-Vergleichspreise pro Lead.
-- `valuation_photo_analysis` — KI-Befunde + Re-Bewertung pro Lead.
-- `valuation_lead_events` — Timeline-Events.
-- `analytics_events` — Funnel-Tracking (`source = 'valuation_funnel'`).
-- `purchase_contracts` — generierte PDFs/Vertragsdaten.
-- `follow_up_jobs` + Cron — automatische Erinnerungen.
+- **Reines SVG**, keine Bilddateien für Header (skaliert verlustfrei, sehr klein, Farben via `currentColor`/CSS-Variablen steuerbar).
+- Farben über `hsl(var(--brand-gold))` und `hsl(var(--brand-dark))` — schaltbar je nach Hintergrund (auf dunklem Header: Gold + Weiß; auf hellem Footer: Gold + Dark-Navy).
+- Rügen-Pfad als wiederverwendbare Konstante `RUEGEN_PATH` exportiert.
+- Favicon: Quadratische SVG → via Sharp/Canvas zu PNG 512×512 mit dunklem Hintergrund + goldenem Monogramm.
 
-Storage-Bucket `valuation-photos` (öffentlich-lesbar mit signierten URLs für Detail-Ansicht).
+### Geänderte Dateien
 
-RLS: Insert öffentlich (anon + authenticated), Select/Update nur Admin (über vorhandene `has_role`).
-
-## Edge Functions (übernommen / angepasst)
-
-- `valuate-vehicle` — KI-Bewertung über Lovable AI Gateway (gpt-5 für Reasoning).
-- `analyze-lead-photos` — Foto-Analyse via gemini-2.5-pro (Vision), aktualisiert Bewertung.
-- `compute-lead-score` — heuristische Score-Berechnung.
-- `scrape-market-data` — Markt-Vergleichspreise.
-- `notify-lead-telegram` — Telegram-Bot-Nachricht (optional, nur wenn `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` gesetzt).
-- `send-transactional-email` + `process-email-queue` + `auth-email-hook` — Email-Infrastruktur (nur wenn nicht schon vorhanden).
-- `process-follow-ups` — Cron-Job für Follow-Up-Versand.
-- `generate-counter-replies` — KI-Antworten für Preisverhandlung.
-- `generate-purchase-contract` — Kaufvertrag als PDF.
-- `send-weekly-report` — Wochen-Zusammenfassung an Admin.
-- `elevenlabs-conversation-token` — neu, generiert WebRTC-Token (Agent-ID übernommen).
-
-## Voice-Agent
-
-ElevenLabs React-SDK (`@elevenlabs/react`). Agent-ID aus AutoFux übernommen (`agent_6201kpp7yr7zfa5rzr5ebzhszytx`) — kann später in den Settings ausgetauscht werden. Client-Tools `setVehicleData` / `setConditionData` / `setContactData` / `setAppointmentData` / `openValuationFunnel` / `submitValuation` füllen den Funnel live mit Typewriter-Effekt. Authentifizierung über serverseitig generierten Conversation-Token (`elevenlabs-conversation-token`-Edge-Function), damit der API-Key nie im Client landet.
-
-## Branding-Anpassung
-
-Funnel und Admin-Module werden auf das exclusiv-Design umgestellt:
-- `SiteHeader` (overlay/solid) + `SiteFooter` statt AutoFux-Header.
-- Container `max-w-5xl mx-auto px-6`, Stepper in Gold/Dark-Navy.
-- Headlines `font-display` mit Gold-Hervorhebung im Eyebrow-Pattern.
-- Buttons als bestehende `Button`-Komponente, primär Gold.
-- Voice-Button rund, Gold (`bg-[hsl(var(--brand-gold))]`), Schatten `shadow-elegant`.
-- Admin-Seiten nutzen das vorhandene `/portal`-Layout.
-
-## Komponenten-Mapping
-
-| AutoFux | Hier |
-|---|---|
-| `pages/Bewertung.tsx` | `pages/AnkaufFunnel.tsx` |
-| `pages/Danke.tsx` | `pages/AnkaufDanke.tsx` |
-| `components/funnel/*` | `components/ankauf/*` (komplett übernommen, Klassen umgeschrieben) |
-| `components/voice/VoiceAgentButton.tsx` | `components/ankauf/VoiceAgentButton.tsx` |
-| `contexts/ValuationDraftContext` | 1:1 übernommen |
-| `contexts/FunnelProgressContext` | 1:1 übernommen |
-| `hooks/use-vehicle-valuation` | 1:1 übernommen |
-| `lib/valuation-schema` / `valuation-draft-mapper` / `lead-submission` / `analytics` | 1:1 übernommen, `submitLead` schreibt in `valuation_leads` |
-| `pages/admin/LeadDetail` | `pages/portal/AnkaufLeadDetail.tsx` |
-| `components/admin/AdminDashboard` | `pages/portal/AnkaufDashboard.tsx` |
-| `components/admin/BusinessDashboard` | `pages/portal/AnkaufBusiness.tsx` |
-| `components/admin/FunnelAnalyticsDashboard` | `pages/portal/AnkaufAnalytics.tsx` |
-| `components/admin/PhotoAnalysisPanel` / `PurchaseContractCard` / `LeadTimeline` / `MarketDataPanel` / `LeadScoreBadge` / `LeadEmailHistory` | übernommen |
-
-## API-Keys / Secrets
-
-- `LOVABLE_API_KEY` ✅ vorhanden (für Bewertung, Foto-Analyse, Counter-Replies).
-- `ELEVENLABS_API_KEY` — wird angefragt.
-- `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` — optional, wird angefragt (Telegram sonst übersprungen).
-- Email-Versand: Mailgun/Resend-Connector wird zum Schluss vorgeschlagen, sofern noch keiner verbunden ist.
-
-## Umsetzung in 6 Schritten
-
-1. **DB-Schicht** — Migration für `valuation_leads`, `valuation_market_data`, `valuation_photo_analysis`, `valuation_lead_events`, `analytics_events`, `purchase_contracts`, `follow_up_jobs`, RLS, Storage-Bucket `valuation-photos`.
-2. **Funnel-Frontend** — `lib/valuation-schema`, Contexts, Hook, Schritt-Komponenten in `components/ankauf/*`, Seiten `/ankauf` + `/ankauf/danke`, im exclusiv-Look mit `SiteHeader`/`SiteFooter`.
-3. **Edge Functions Bewertung** — `valuate-vehicle`, `compute-lead-score`, `analyze-lead-photos`, `scrape-market-data` deployen + Live-Bewertung im Funnel.
-4. **Voice-Agent** — `@elevenlabs/react` installieren, Edge-Function `elevenlabs-conversation-token`, `VoiceAgentButton` global mounten, Client-Tools verdrahten.
-5. **Notifications & Automation** — Telegram, Email-Infra (falls nötig), Follow-Ups, Counter-Replies, Wochen-Report; Bestätigungs-Mail nach Lead-Submit.
-6. **Admin-Module** — Lead-Liste, Lead-Detail (Timeline, Markt, Foto-Analyse, Vertrag, Email-Historie), Funnel-Analytics, Business-Dashboard unter `/portal/ankauf/*` integriert.
-
-Nach Schritt 1 melde ich mich für die Migration-Bestätigung; Secrets (`ELEVENLABS_API_KEY`) frage ich vor Schritt 4 an.
+- `src/components/BrandLogo.tsx` — komplette Neufassung mit 3 Varianten + Rügen-Silhouette
+- `src/components/SiteHeader.tsx` — Wortmarke ersetzt
+- `src/components/SiteFooter.tsx` — Stempel hinzugefügt
+- `src/components/AdminLayout.tsx` — Mark in Sidebar
+- `public/favicon.png` — neu generiert
+- `public/favicon.ico` — gelöscht (damit Browser das PNG nimmt)
+- `index.html` — favicon-Link aktualisiert
