@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Car, Zap, AlertTriangle, ArrowLeft, Gauge, Layers, Copy, Check,
-  Cpu, Snowflake, Flame, Lock, Fuel, Settings2, Euro,
+  Cpu, Snowflake, Flame, Lock, Fuel, Settings2, Euro, Info,
 } from 'lucide-react';
 import { Leaf, ChevronRight, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
@@ -18,6 +18,7 @@ import { getEcuManufacturer } from '@/lib/ecu';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { LeadRequestDialog } from '@/components/LeadRequestDialog';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 function mergedCompareData(stages: { dynoPoints: { rpm: number; power: number; torque: number }[] }[]) {
   const s1 = stages[0]?.dynoPoints ?? [];
@@ -182,7 +183,52 @@ export default function ConfiguratorResultPageV2() {
           <StatCard icon={<Gauge className="h-4 w-4" />} label="Prognose PS" value={`${rec.estimated_hp} PS`} sub={`+${rec.delta_hp} PS`} />
           <StatCard icon={<Zap className="h-4 w-4" />} label="Prognose Nm" value={`${rec.estimated_nm} Nm`} sub={`+${rec.delta_nm} Nm`} />
           <StatCard icon={<Layers className="h-4 w-4" />} label="Stage" value={activeStage === ECO_STAGE_ID ? 'Eco' : `Stage ${activeStage}`} sub={rec.stage_label.split(' – ')[1]} />
-          <StatCard icon={<Euro className="h-4 w-4" />} label="Gesamtpreis" value={formatPrice(stageTotal)} valueClass={activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'} />
+          <div className="bg-card border border-border rounded-md p-4 relative">
+            <div className="flex items-center gap-1.5 mb-2 text-muted-foreground">
+              <Euro className="h-4 w-4" /><span className="text-[10px] uppercase tracking-wider font-medium">Gesamtpreis</span>
+            </div>
+            <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Komponenten & Preise anzeigen"
+                  className="absolute top-2 right-2 inline-flex items-center justify-center h-7 w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72">
+                <h4 className="text-sm font-semibold text-foreground mb-3">Komponenten & Preise</h4>
+                <div className="space-y-2">
+                  {rec.components.map((c) => {
+                    const price = stageConfigs[activeStage - 1].componentPrices[c] ?? 0;
+                    return (
+                      <div key={c} className="flex items-center justify-between gap-2">
+                        <span className="px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground text-xs font-medium">{c}</span>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {price > 0 ? formatPrice(price) : 'inkl.'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div className="border-t border-border pt-2 mt-3 flex items-center justify-between">
+                    <span className="text-sm font-bold text-foreground">Gesamt</span>
+                    <span className={`text-sm font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </motion.div>
+
+        {/* Beschreibung – volle Breite vor Diagramm */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}
+          className="bg-card border border-border rounded-md p-6"
+        >
+          <h3 className="text-sm font-semibold text-foreground mb-2">Beschreibung</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">{rec.description}</p>
         </motion.div>
 
         {/* Dyno Chart */}
@@ -207,7 +253,7 @@ export default function ConfiguratorResultPageV2() {
               {compareMode ? 'Einzelansicht' : 'Vergleichsmodus'}
             </button>
           </div>
-          <div className="h-80">
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               {compareMode ? (
                 <LineChart data={mergedCompareData(stages)}>
@@ -243,36 +289,6 @@ export default function ConfiguratorResultPageV2() {
         </motion.div>
 
         {/* Description + Components */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <div className="bg-card border border-border rounded-md p-6">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Beschreibung</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{rec.description}</p>
-          </div>
-          <div className="bg-card border border-border rounded-md p-6">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Komponenten & Preise</h3>
-            <div className="space-y-2">
-              {rec.components.map((c) => {
-                const price = stageConfigs[activeStage - 1].componentPrices[c] ?? 0;
-                return (
-                  <div key={c} className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-sm bg-secondary text-secondary-foreground text-xs font-medium">{c}</span>
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {price > 0 ? formatPrice(price) : 'inkl.'}
-                    </span>
-                  </div>
-                );
-              })}
-              <div className="border-t border-border pt-2 mt-3 flex items-center justify-between">
-                <span className="text-sm font-bold text-foreground">Gesamt</span>
-                <span className={`text-sm font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Tuning-Optionen */}
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}
