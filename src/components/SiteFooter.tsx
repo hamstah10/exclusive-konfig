@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SiteLogo } from '@/components/SiteLogo';
 
 export function SiteFooter() {
   const { t } = useTranslation();
@@ -8,10 +9,7 @@ export function SiteFooter() {
     <footer id="kontakt" className="bg-brand-dark text-[hsl(var(--brand-dark-foreground))] mt-24">
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div className="md:col-span-1">
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="font-display italic text-brand-gold text-2xl">exclusiv</span>
-            <span className="font-display tracking-wider text-white text-lg uppercase">Automobile</span>
-          </div>
+          <SiteLogo variant="stamp" size={120} className="mb-5" />
           <p className="text-sm text-white/70 leading-relaxed">
             {t('footer.tagline')}
           </p>
