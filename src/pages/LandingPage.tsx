@@ -7,19 +7,15 @@ import {
 } from 'lucide-react';
 import heroCar from '@/assets/hero-car.jpg';
 import dynoImg from '@/assets/dyno.jpg';
-import showroomImg from '@/assets/showroom.jpg';
 import wheelsImg from '@/assets/wheels.jpg';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
 import { CountUp } from '@/components/CountUp';
 import { ParallaxImage } from '@/components/Parallax';
+import { featuredVehicles } from '@/data/vehicles';
 
-const featuredCars = [
-  { brand: 'Porsche', model: '911 Turbo S', year: 2022, hp: 650, price: '189.900 €', img: heroCar },
-  { brand: 'BMW', model: 'M4 Competition', year: 2023, hp: 510, price: '109.500 €', img: showroomImg },
-  { brand: 'Mercedes-AMG', model: 'C 63 S', year: 2021, hp: 510, price: '79.900 €', img: wheelsImg },
-];
+const featuredCars = featuredVehicles();
 
 const stats = [
   { value: '15+', label: 'Jahre Erfahrung' },
@@ -382,19 +378,20 @@ export default function LandingPage() {
               </Reveal>
             </div>
             <Reveal direction="right" delay={0.2}>
-              <a
-                href="#"
+              <Link
+                to="/fahrzeuge"
                 className="group text-sm font-semibold uppercase tracking-[0.15em] text-[hsl(var(--brand-dark))] border-b-2 border-[hsl(var(--brand-gold))] pb-1 inline-flex items-center gap-2"
               >
                 Alle Fahrzeuge ansehen
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </Reveal>
           </div>
 
           <StaggerGroup className="grid md:grid-cols-3 gap-6" stagger={0.15}>
             {featuredCars.map((car) => (
-              <StaggerItem key={car.model} direction="scale" distance={40}>
+              <StaggerItem key={car.slug} direction="scale" distance={40}>
+                <Link to={`/fahrzeuge/${car.slug}`} className="block h-full">
                 <motion.article
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.3 }}
@@ -418,17 +415,15 @@ export default function LandingPage() {
                       <span>{car.hp} PS</span>
                     </div>
                     <div className="flex items-end justify-between pt-4 border-t border-border">
-                      <span className="font-display text-2xl text-[hsl(var(--brand-gold))]">{car.price}</span>
-                      <a
-                        href="#"
-                        className="group/link text-xs uppercase tracking-[0.15em] font-semibold hover:text-[hsl(var(--brand-gold))] transition-colors inline-flex items-center gap-1"
-                      >
+                      <span className="font-display text-2xl text-[hsl(var(--brand-gold))]">{car.priceLabel}</span>
+                      <span className="text-xs uppercase tracking-[0.15em] font-semibold inline-flex items-center gap-1 group-hover:text-[hsl(var(--brand-gold))] transition-colors">
                         Details
-                        <ArrowRight className="h-3 w-3 group-hover/link:translate-x-0.5 transition-transform" />
-                      </a>
+                        <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                      </span>
                     </div>
                   </div>
                 </motion.article>
+                </Link>
               </StaggerItem>
             ))}
           </StaggerGroup>
