@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Globe, Settings2 } from 'lucide-react';
+import { Menu, X, Globe, Settings2, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,9 +9,21 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
   const isHome = location.pathname === '/';
   const { t, i18n } = useTranslation();
 
-  const navItems = [
-    { label: t('nav.marketplace'), to: '/#fahrzeuge' },
-    { label: 'Ankauf', to: '/#ankauf' },
+  type NavItem = {
+    label: string;
+    to: string;
+    children?: { label: string; to: string }[];
+  };
+
+  const navItems: NavItem[] = [
+    {
+      label: t('nav.marketplace'),
+      to: '/#fahrzeuge',
+      children: [
+        { label: 'Verkauf', to: '/#fahrzeuge' },
+        { label: 'Ankauf', to: '/#ankauf' },
+      ],
+    },
     { label: t('nav.chiptuning'), to: '/#chiptuning' },
     { label: t('nav.dyno'), to: '/#pruefstand' },
     { label: t('nav.wheels'), to: '/#raeder' },
@@ -37,15 +49,40 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7">
-          {navItems.map((item) => (
-            <a
-              key={item.to}
-              href={isHome ? item.to.replace('/', '') : item.to}
-              className="text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) =>
+            item.children ? (
+              <div key={item.label} className="relative group">
+                <a
+                  href={isHome ? item.to.replace('/', '') : item.to}
+                  className="text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold transition-colors inline-flex items-center gap-1"
+                >
+                  {item.label}
+                  <ChevronDown className="h-3 w-3 opacity-70 group-hover:rotate-180 transition-transform" />
+                </a>
+                <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="min-w-[180px] bg-brand-dark border border-[hsl(var(--brand-gold))]/20 shadow-2xl py-2">
+                    {item.children.map((child) => (
+                      <a
+                        key={child.to}
+                        href={isHome ? child.to.replace('/', '') : child.to}
+                        className="block px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold hover:bg-white/5 transition-colors"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a
+                key={item.to}
+                href={isHome ? item.to.replace('/', '') : item.to}
+                className="text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold transition-colors"
+              >
+                {item.label}
+              </a>
+            )
+          )}
           <button
             type="button"
             onClick={switchLang}
@@ -79,14 +116,29 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
         <div className="lg:hidden bg-brand-dark border-t border-[hsl(var(--brand-gold))]/20">
           <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-3">
             {navItems.map((item) => (
-              <a
-                key={item.to}
-                href={isHome ? item.to.replace('/', '') : item.to}
-                onClick={() => setOpen(false)}
-                className="text-sm uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold py-1"
-              >
-                {item.label}
-              </a>
+              <div key={item.label}>
+                <a
+                  href={isHome ? item.to.replace('/', '') : item.to}
+                  onClick={() => setOpen(false)}
+                  className="block text-sm uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold py-1"
+                >
+                  {item.label}
+                </a>
+                {item.children && (
+                  <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-white/10 pl-3">
+                    {item.children.map((child) => (
+                      <a
+                        key={child.to}
+                        href={isHome ? child.to.replace('/', '') : child.to}
+                        onClick={() => setOpen(false)}
+                        className="text-xs uppercase tracking-[0.2em] text-white/60 hover:text-brand-gold py-1"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <button
               type="button"
