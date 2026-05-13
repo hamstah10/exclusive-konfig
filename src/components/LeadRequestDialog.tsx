@@ -213,7 +213,9 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
             <h2 id="lead-dialog-title" className="font-display text-2xl mt-1">
               {vehicle.brand} <span className="italic">{vehicle.model}</span>
             </h2>
-            <div className="text-sm text-muted-foreground mt-1">{vehicle.priceLabel}</div>
+            {vehicle.priceLabel && (
+              <div className="text-sm text-muted-foreground mt-1">{vehicle.priceLabel}</div>
+            )}
           </div>
           <button
             type="button"
