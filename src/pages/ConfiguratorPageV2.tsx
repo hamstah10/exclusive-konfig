@@ -5,7 +5,7 @@ import { Car, Zap, ArrowRight, Loader2, Shield, AlertTriangle, Gauge, Sparkles }
 import { Leaf, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
 import { Button } from '@/components/ui/button';
-import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs } from '@/lib/configurator-store';
+import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs, buildAssetUrl, type ConfiguratorApiData, type ApiTuningOption } from '@/lib/configurator-store';
 import VehicleSearch from '@/components/VehicleSearch';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -74,6 +74,7 @@ export default function ConfiguratorPageV2() {
   const [seriesId, setSeriesId] = useState<number | null>(null);
   const [modelId, setModelId] = useState<number | null>(null);
   const [engineId, setEngineId] = useState<number | null>(null);
+  const [apiData, setApiData] = useState<ConfiguratorApiData | undefined>(undefined);
   const [cascadeLoading, setCascadeLoading] = useState<'brands' | 'series' | 'models' | 'engines' | 'details' | null>(null);
   const [cascadeError, setCascadeError] = useState<string | null>(null);
 
@@ -143,7 +144,7 @@ export default function ConfiguratorPageV2() {
     fetchEngineDetails(engineId)
       .then((details) => {
         const engine = details.engine ?? {};
-        const stockHp = pickNum(engine, ['power', 'ps', 'hp', 'kw_power', 'series_power']);
+        const stockHp = pickNum(engine, ['horsepower', 'power', 'ps', 'hp', 'kw_power', 'series_power']);
         const stockNm = pickNum(engine, ['torque', 'nm', 'series_torque']);
         const fuel = mapFuel((engine as Record<string, unknown>).fuel ?? (engine as Record<string, unknown>).fuel_type);
         const brandName = (details.brand?.name as string | undefined) ?? brands.find((b) => b.id === brandId)?.name ?? '';
@@ -157,6 +158,24 @@ export default function ConfiguratorPageV2() {
           stock_nm: stockNm || prev.stock_nm,
           fuel_type: fuel ?? prev.fuel_type,
         }));
+
+        // Extract ECU + tuning options from API
+        const ecus = (details.ecus ?? []) as Array<Record<string, unknown>>;
+        const ecu = ecus[0];
+        const rawOptions = (ecu?.options ?? []) as Array<Record<string, unknown>>;
+        const tuningOptions: ApiTuningOption[] = rawOptions.map((o) => ({
+          id: Number(o.id),
+          name: String(o.name ?? ''),
+          iconUrl: buildAssetUrl(typeof o.icon === 'string' ? o.icon : undefined),
+          price: typeof o.price === 'number' ? o.price : (typeof o.price === 'string' ? Number(o.price) : undefined),
+          description: typeof o.description === 'string' ? o.description : undefined,
+        }));
+        setApiData({
+          ecuName: typeof ecu?.name === 'string' ? ecu.name : undefined,
+          ecuManufacturer: typeof ecu?.manufacturer === 'string' ? ecu.manufacturer : undefined,
+          ecuManufacturerLogoUrl: buildAssetUrl(typeof ecu?.manufacturerLogo === 'string' ? ecu.manufacturerLogo as string : undefined),
+          tuningOptions,
+        });
         setAutoDetected(true);
       })
       .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
@@ -183,7 +202,7 @@ export default function ConfiguratorPageV2() {
       engine_code: enginesList.find((e) => e.id === engineId)?.name ?? '',
       ecu_type: '',
     };
-    const result = generateRecommendation(vehicle, selectedStage);
+    const result = generateRecommendation(vehicle, selectedStage, apiData);
     navigate(`/konfigurator/${result.id}`);
   };
 
