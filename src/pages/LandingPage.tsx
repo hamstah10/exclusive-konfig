@@ -53,59 +53,6 @@ function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-dark))]/80 via-transparent to-transparent" />
 
-      {/* Animated SVG waves over the sea area in the hero image */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-[38%] h-[18%] overflow-hidden"
-        style={{
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 70%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 70%, transparent 100%)',
-        }}
-      >
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            {/* Wave is 2880 wide (2x viewBox) so translateX -1440 loops seamlessly */}
-            <path
-              id="heroWave"
-              d="M0,160 C180,120 360,200 540,160 C720,120 900,200 1080,160 C1260,120 1440,200 1440,160 C1620,120 1800,200 1980,160 C2160,120 2340,200 2520,160 C2700,120 2880,200 2880,160 L2880,320 L0,320 Z"
-            />
-          </defs>
-
-          <g className="hero-wave hero-wave--a">
-            <use href="#heroWave" y="20" fill="rgba(255,255,255,0.06)" />
-          </g>
-          <g className="hero-wave hero-wave--b">
-            <use href="#heroWave" y="60" fill="rgba(212,175,90,0.12)" />
-          </g>
-          <g className="hero-wave hero-wave--c">
-            <use href="#heroWave" y="110" fill="rgba(255,255,255,0.10)" />
-          </g>
-          <g className="hero-wave hero-wave--d">
-            <use href="#heroWave" y="170" fill="rgba(255,255,255,0.16)" />
-          </g>
-        </svg>
-        <style>{`
-          @keyframes heroWaveLeft {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-1440px); }
-          }
-          @keyframes heroWaveRight {
-            from { transform: translateX(-1440px); }
-            to   { transform: translateX(0); }
-          }
-          .hero-wave { will-change: transform; }
-          .hero-wave--a { animation: heroWaveLeft  22s linear infinite; }
-          .hero-wave--b { animation: heroWaveRight 28s linear infinite; }
-          .hero-wave--c { animation: heroWaveLeft  16s linear infinite; }
-          .hero-wave--d { animation: heroWaveRight 12s linear infinite; }
-        `}</style>
-      </div>
-
       <div className="relative max-w-7xl mx-auto px-6 pb-32 md:pb-40 pt-32 w-full">
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
