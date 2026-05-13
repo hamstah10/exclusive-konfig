@@ -13,20 +13,20 @@ type Status = Lead["status"];
 
 const STATUS_OPTIONS: { value: Status; label: string }[] = [
   { value: "neu", label: "Neu" },
-  { value: "in_bearbeitung", label: "In Bearbeitung" },
-  { value: "termin_vereinbart", label: "Termin vereinbart" },
-  { value: "angekauft", label: "Angekauft" },
-  { value: "verkauft", label: "Verkauft" },
-  { value: "abgelehnt", label: "Abgelehnt" },
+  { value: "kontaktiert", label: "Kontaktiert" },
+  { value: "qualifiziert", label: "Qualifiziert" },
+  { value: "termin", label: "Termin" },
+  { value: "gekauft", label: "Gekauft" },
+  { value: "abgesagt", label: "Abgesagt" },
 ];
 
 const STATUS_TONE: Record<string, string> = {
   neu: "bg-amber-100 text-amber-900 border-amber-300",
-  in_bearbeitung: "bg-sky-100 text-sky-900 border-sky-300",
-  termin_vereinbart: "bg-violet-100 text-violet-900 border-violet-300",
-  angekauft: "bg-emerald-100 text-emerald-900 border-emerald-300",
-  verkauft: "bg-emerald-200 text-emerald-900 border-emerald-400",
-  abgelehnt: "bg-rose-100 text-rose-900 border-rose-300",
+  kontaktiert: "bg-sky-100 text-sky-900 border-sky-300",
+  qualifiziert: "bg-violet-100 text-violet-900 border-violet-300",
+  termin: "bg-indigo-100 text-indigo-900 border-indigo-300",
+  gekauft: "bg-emerald-100 text-emerald-900 border-emerald-300",
+  abgesagt: "bg-rose-100 text-rose-900 border-rose-300",
 };
 
 const fmtEuro = (n: number | null) =>
