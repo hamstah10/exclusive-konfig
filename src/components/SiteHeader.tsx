@@ -1,13 +1,21 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Globe, Settings2, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'solid' }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
   const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   type NavItem = {
     label: string;
@@ -36,7 +44,9 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
 
   const base =
     variant === 'overlay'
-      ? 'absolute top-0 inset-x-0 z-30 bg-gradient-to-b from-[hsl(var(--brand-dark))]/95 to-[hsl(var(--brand-dark))]/70 text-[hsl(var(--brand-dark-foreground))]'
+      ? scrolled
+        ? 'fixed top-0 inset-x-0 z-40 bg-[hsl(var(--brand-dark))]/95 backdrop-blur-md border-b border-[hsl(var(--brand-gold))]/20 shadow-lg text-white animate-in slide-in-from-top duration-300'
+        : 'absolute top-0 inset-x-0 z-30 bg-gradient-to-b from-[hsl(var(--brand-dark))]/95 to-[hsl(var(--brand-dark))]/70 text-[hsl(var(--brand-dark-foreground))]'
       : 'sticky top-0 z-30 bg-brand-dark border-b border-[hsl(var(--brand-gold))]/20';
 
   return (
