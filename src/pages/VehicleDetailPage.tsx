@@ -9,11 +9,13 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
 import { findVehicle, vehicles } from '@/data/vehicles';
+import { LeadRequestDialog } from '@/components/LeadRequestDialog';
 
 export default function VehicleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const vehicle = slug ? findVehicle(slug) : undefined;
   const [activeImg, setActiveImg] = useState(0);
+  const [leadOpen, setLeadOpen] = useState(false);
 
   if (!vehicle) return <Navigate to="/fahrzeuge" replace />;
 
@@ -112,17 +114,18 @@ export default function VehicleDetailPage() {
 
             <Reveal direction="up" delay={0.2}>
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <button
+                  type="button"
+                  onClick={() => setLeadOpen(true)}
+                  className="group inline-flex items-center justify-center gap-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] px-6 py-3.5 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-gold))]/90 transition-all"
+                >
+                  <Mail className="h-4 w-4" /> Angebot anfragen
+                </button>
                 <a
                   href="tel:+4938301000000"
-                  className="group inline-flex items-center justify-center gap-2 bg-[hsl(var(--brand-dark))] text-white px-6 py-3.5 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))]/90 transition-all"
-                >
-                  <Phone className="h-4 w-4" /> Probefahrt anfragen
-                </a>
-                <a
-                  href="mailto:info@exclusiv-automobile-ruegen.de"
                   className="group inline-flex items-center justify-center gap-2 border-2 border-[hsl(var(--brand-dark))] text-[hsl(var(--brand-dark))] px-6 py-3.5 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))] hover:text-white transition-all"
                 >
-                  <Mail className="h-4 w-4" /> Anfragen
+                  <Phone className="h-4 w-4" /> Probefahrt
                 </a>
               </div>
             </Reveal>
@@ -235,6 +238,7 @@ export default function VehicleDetailPage() {
       </section>
 
       <SiteFooter />
+      <LeadRequestDialog vehicle={vehicle} open={leadOpen} onOpenChange={setLeadOpen} />
     </div>
   );
 }
