@@ -216,10 +216,10 @@ export default function ConfiguratorResultPageV2() {
                   <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '4px', fontSize: '12px' }} labelFormatter={(rpm) => `${rpm} RPM`} />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line type="monotone" dataKey="ps1" name="S1 PS" stroke="hsl(var(--destructive))" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
-                  <Line type="monotone" dataKey="nm1" name="S1 Nm" stroke="hsl(210 80% 55%)" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
-                  <Line type="monotone" dataKey="ps2" name="S2 PS" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} strokeDasharray="3 2" />
-                  <Line type="monotone" dataKey="nm2" name="S2 Nm" stroke="hsl(210 80% 55%)" strokeWidth={2} dot={false} strokeDasharray="3 2" />
+                  <Line type="monotone" dataKey="ps1" name="S1 PS" stroke="hsl(var(--brand-gold))" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
+                  <Line type="monotone" dataKey="nm1" name="S1 Nm" stroke="hsl(var(--brand-dark))" strokeWidth={1.5} dot={false} strokeDasharray="6 3" />
+                  <Line type="monotone" dataKey="ps2" name="S2 PS" stroke="hsl(var(--brand-gold))" strokeWidth={2} dot={false} strokeDasharray="3 2" />
+                  <Line type="monotone" dataKey="nm2" name="S2 Nm" stroke="hsl(var(--brand-dark))" strokeWidth={2} dot={false} strokeDasharray="3 2" />
                   {vehicle.fuel_type === 'diesel' && (
                     <>
                       <Line type="monotone" dataKey="ps3" name="Eco PS" stroke="hsl(var(--success))" strokeWidth={2} dot={false} />
@@ -234,8 +234,8 @@ export default function ConfiguratorResultPageV2() {
                   <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '4px', fontSize: '12px' }} labelFormatter={(rpm) => `${rpm} RPM`} />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line type="monotone" dataKey="power" name="PS" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--destructive))'} strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="torque" name="Nm" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(210 80% 55%)'} strokeWidth={2} dot={false} strokeDasharray={activeStage === ECO_STAGE_ID ? '4 2' : undefined} />
+                  <Line type="monotone" dataKey="power" name="PS" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-gold))'} strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="torque" name="Nm" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-dark))'} strokeWidth={2} dot={false} strokeDasharray={activeStage === ECO_STAGE_ID ? '4 2' : undefined} />
                 </LineChart>
               )}
             </ResponsiveContainer>
