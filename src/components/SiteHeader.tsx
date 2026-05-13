@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, Settings2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +10,6 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
   const { t, i18n } = useTranslation();
 
   const navItems = [
-    { label: t('nav.start'), to: '/#top' },
     { label: t('nav.marketplace'), to: '/#fahrzeuge' },
     { label: t('nav.chiptuning'), to: '/#chiptuning' },
     { label: t('nav.dyno'), to: '/#pruefstand' },
@@ -58,9 +57,11 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
           </button>
           <Link
             to="/konfigurator"
-            className="text-xs uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] hover:bg-[hsl(var(--brand-gold))]/90 transition-colors font-semibold"
+            aria-label={t('nav.configurator') as string}
+            title={t('nav.configurator') as string}
+            className="inline-flex items-center justify-center h-9 w-9 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] hover:bg-[hsl(var(--brand-gold))]/90 transition-colors"
           >
-            {t('nav.configurator')}
+            <Settings2 className="h-4 w-4" />
           </Link>
         </nav>
 
@@ -98,8 +99,9 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
             <Link
               to="/konfigurator"
               onClick={() => setOpen(false)}
-              className="text-sm uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] font-semibold text-center mt-2"
+              className="inline-flex items-center justify-center gap-2 text-sm uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] font-semibold text-center mt-2"
             >
+              <Settings2 className="h-4 w-4" />
               {t('nav.configurator')}
             </Link>
           </div>
