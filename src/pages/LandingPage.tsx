@@ -56,7 +56,11 @@ function HeroSection() {
       {/* Animated SVG waves over the sea area in the hero image */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] overflow-hidden"
+        className="pointer-events-none absolute inset-x-0 top-[38%] h-[18%] overflow-hidden"
+        style={{
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 70%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 35%, black 70%, transparent 100%)',
+        }}
       >
         <svg
           className="absolute inset-0 w-full h-full"
