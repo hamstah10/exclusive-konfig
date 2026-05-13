@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { SiteHeader } from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -46,26 +42,12 @@ const STATUS_VARIANT: Record<Status, string> = {
 };
 
 export default function AdminBookingsPage() {
-  const { user, loading: authLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Record<string, { status: Status; admin_note: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data));
-  }, [user]);
-
-  useEffect(() => {
-    if (!isAdmin) return;
     (async () => {
       const { data, error } = await supabase
         .from('dyno_bookings')
@@ -81,23 +63,7 @@ export default function AdminBookingsPage() {
       }
       setLoading(false);
     })();
-  }, [isAdmin]);
-
-  if (authLoading) return null;
-  if (!user) return <Navigate to="/auth?redirect=/admin/pruefstand" replace />;
-  if (isAdmin === false) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <SiteHeader variant="solid" />
-        <main className="flex-1 max-w-4xl mx-auto px-6 py-20 text-center">
-          <h1 className="font-display text-3xl mb-4">Kein Zugriff</h1>
-          <p className="text-muted-foreground mb-6">Dieser Bereich ist nur für Administratoren verfügbar.</p>
-          <Link to="/" className="text-brand-gold underline">Zurück zur Startseite</Link>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
+  }, []);
 
   const save = async (id: string) => {
     const draft = drafts[id];
@@ -117,14 +83,12 @@ export default function AdminBookingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <SiteHeader variant="solid" />
-      <main className="flex-1 max-w-6xl mx-auto px-6 py-12 w-full">
-        <div className="mb-10">
+    <div className="max-w-6xl">
+      <div className="mb-8">
           <span className="text-xs uppercase tracking-[0.3em] text-brand-gold">Admin</span>
           <h1 className="font-display text-4xl md:text-5xl mt-2">Prüfstand-<em className="text-brand-gold not-italic md:italic">Buchungen</em></h1>
           <p className="text-muted-foreground mt-2">{bookings.length} {bookings.length === 1 ? 'Buchung' : 'Buchungen'} insgesamt.</p>
-        </div>
+      </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-brand-gold" /></div>
@@ -200,8 +164,6 @@ export default function AdminBookingsPage() {
             })}
           </div>
         )}
-      </main>
-      <SiteFooter />
     </div>
   );
 }
