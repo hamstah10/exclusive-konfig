@@ -1,8 +1,8 @@
-import { VehicleStepForm } from "@/components/funnel/VehicleStepForm";
-import { ConditionStepForm } from "@/components/funnel/ConditionStepForm";
-import { ContactStepForm } from "@/components/funnel/ContactStepForm";
-import { AppointmentStepForm } from "@/components/funnel/AppointmentStepForm";
-import { PhotoStepForm } from "@/components/funnel/PhotoStepForm";
+import { VehicleStepForm } from "@/components/ankauf/VehicleStepForm";
+import { ConditionStepForm } from "@/components/ankauf/ConditionStepForm";
+import { ContactStepForm } from "@/components/ankauf/ContactStepForm";
+import { AppointmentStepForm } from "@/components/ankauf/AppointmentStepForm";
+import { PhotoStepForm } from "@/components/ankauf/PhotoStepForm";
 import type { ValuationData } from "@/lib/valuation-schema";
 
 interface Props {

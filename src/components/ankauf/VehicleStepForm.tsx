@@ -8,9 +8,9 @@ import { Slider } from "@/components/ui/slider";
 import { vehicleStepSchema, type VehicleStep, carBrands } from "@/lib/valuation-schema";
 import { ArrowRight, Fuel, Zap, Flame, Leaf, ChevronDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AiFieldHighlight } from "@/components/funnel/AiFieldHighlight";
-import { SectionCard } from "@/components/funnel/SectionCard";
-import { trackEvent, trackFirstInteraction, trackValidationErrors } from "@/lib/analytics";
+import { AiFieldHighlight } from "@/components/ankauf/AiFieldHighlight";
+import { SectionCard } from "@/components/ankauf/SectionCard";
+import { trackEvent, trackFirstInteraction, trackValidationErrors } from "@/lib/ankauf-analytics";
 
 interface Props {
   defaults?: Partial<VehicleStep>;

@@ -11,9 +11,9 @@ import {
   Crosshair, Crosshair as CrosshairIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AiFieldHighlight } from "@/components/funnel/AiFieldHighlight";
-import { SectionCard } from "@/components/funnel/SectionCard";
-import { trackFirstInteraction, trackValidationErrors } from "@/lib/analytics";
+import { AiFieldHighlight } from "@/components/ankauf/AiFieldHighlight";
+import { SectionCard } from "@/components/ankauf/SectionCard";
+import { trackFirstInteraction, trackValidationErrors } from "@/lib/ankauf-analytics";
 
 interface Props {
   defaults?: Partial<ConditionStep>;

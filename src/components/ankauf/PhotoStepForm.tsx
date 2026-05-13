@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { MAX_PHOTOS, MAX_PHOTO_SIZE_BYTES } from "@/lib/valuation-schema";
 import { cn } from "@/lib/utils";
-import { trackEvent, trackFirstInteraction } from "@/lib/analytics";
+import { trackEvent, trackFirstInteraction } from "@/lib/ankauf-analytics";
 
 interface Props {
   defaults?: { photoUrls?: string[] };
@@ -75,7 +75,7 @@ export const PhotoStepForm = ({ defaults, onNext, onBack }: Props) => {
         const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "jpg";
         const path = `${crypto.randomUUID()}.${safeExt}`;
         const { error } = await supabase.storage
-          .from("lead-photos")
+          .from("valuation-photos")
           .upload(path, file, {
             cacheControl: "3600",
             upsert: false,
@@ -91,7 +91,7 @@ export const PhotoStepForm = ({ defaults, onNext, onBack }: Props) => {
           });
           continue;
         }
-        const { data } = supabase.storage.from("lead-photos").getPublicUrl(path);
+        const { data } = supabase.storage.from("valuation-photos").getPublicUrl(path);
         uploaded.push(data.publicUrl);
       }
       setUploading(false);

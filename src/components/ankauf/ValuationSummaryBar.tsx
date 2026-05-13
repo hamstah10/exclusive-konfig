@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, Loader2, Sparkles, AlertCircle, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ValuationResult } from "@/components/funnel/ValuationPreview";
+import type { ValuationResult } from "@/components/ankauf/ValuationPreview";
 import { useCountUp } from "@/hooks/use-count-up";
 
 interface Props {

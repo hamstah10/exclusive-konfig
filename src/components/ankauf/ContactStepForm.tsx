@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { contactStepSchema, type ContactStep } from "@/lib/valuation-schema";
 import { ArrowRight, ArrowLeft } from "lucide-react";
-import { AiFieldHighlight } from "@/components/funnel/AiFieldHighlight";
-import { trackFirstInteraction, trackValidationErrors } from "@/lib/analytics";
+import { AiFieldHighlight } from "@/components/ankauf/AiFieldHighlight";
+import { trackFirstInteraction, trackValidationErrors } from "@/lib/ankauf-analytics";
 
 interface Props {
   defaults?: Partial<ContactStep>;

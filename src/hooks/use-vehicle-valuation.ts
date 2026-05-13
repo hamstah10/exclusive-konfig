@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { ValuationResult } from "@/components/funnel/ValuationPreview";
+import type { ValuationResult } from "@/components/ankauf/ValuationPreview";
 import type { ValuationData } from "@/lib/valuation-schema";
 
 interface UseVehicleValuation {
