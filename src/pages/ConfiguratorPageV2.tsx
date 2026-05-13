@@ -159,9 +159,13 @@ export default function ConfiguratorPageV2() {
           fuel_type: fuel ?? prev.fuel_type,
         }));
 
-        // Extract ECU + tuning options from API
+        // Extract ECU + tuning options from API.
+        // Pick the MCU (engine ECU) — TCU/gearbox ECUs usually have no tuning options.
         const ecus = (details.ecus ?? []) as Array<Record<string, unknown>>;
-        const ecu = ecus[0];
+        const ecu =
+          ecus.find((e) => Array.isArray(e.options) && (e.options as unknown[]).length > 0) ??
+          ecus.find((e) => typeof e.type === 'string' && (e.type as string).toLowerCase() === 'mcu') ??
+          ecus[0];
         const rawOptions = (ecu?.options ?? []) as Array<Record<string, unknown>>;
         const tuningOptions: ApiTuningOption[] = rawOptions.map((o) => ({
           id: Number(o.id),
