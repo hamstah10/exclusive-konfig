@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs } from '@/lib/configurator-store';
 import { lookupVehicleSpec, getModelsForBrand } from '@/lib/vehicle-database';
 import VehicleSearch from '@/components/VehicleSearch';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { VersionToggle } from '@/components/VersionToggle';
+import { SiteHeader } from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 import type { VehicleSpec } from '@/lib/vehicle-database';
 import type { Vehicle } from '@/types/models';
 
@@ -85,7 +85,7 @@ export default function ConfiguratorPageV2() {
       ...form,
     };
     const result = generateRecommendation(vehicle, selectedStage);
-    navigate(`/v2/configurator/${result.id}`);
+    navigate(`/konfigurator/${result.id}`);
   };
 
   const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
@@ -109,24 +109,25 @@ export default function ConfiguratorPageV2() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/v2" className="text-lg font-bold tracking-tight text-foreground">
+      <SiteHeader variant="solid" />
+
+      <div className="bg-brand-dark text-white py-12 border-b border-[hsl(var(--brand-gold))]/20">
+        <div className="max-w-4xl mx-auto px-6">
+          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-brand-gold mb-3">
+            <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
             Chiptuning Konfigurator
-          </a>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground font-mono tracking-wider uppercase">Konfigurator</span>
-            <VersionToggle />
-            <ThemeToggle />
-          </div>
+          </span>
+          <h1 className="font-display text-4xl md:text-5xl leading-tight">
+            Mehr Power für dein <span className="italic text-brand-gold">Fahrzeug.</span>
+          </h1>
         </div>
-      </header>
+      </div>
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="flex items-center gap-3 mb-2">
-            <Car className="h-5 w-5 text-destructive" />
-            <h1 className="text-2xl font-bold text-foreground">Fahrzeug konfigurieren</h1>
+            <Car className="h-5 w-5 text-[hsl(var(--brand-gold))]" />
+            <h2 className="text-2xl font-bold text-foreground">Fahrzeug konfigurieren</h2>
           </div>
           <p className="text-muted-foreground text-sm mb-8 max-w-xl">
             Wähle dein Fahrzeug per Schnellsuche oder gib die Daten manuell ein. Sobald das Fahrzeug erkannt
@@ -300,6 +301,8 @@ export default function ConfiguratorPageV2() {
           </form>
         </motion.div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }
