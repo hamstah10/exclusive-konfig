@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      dyno_bookings: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          email: string
+          fuel: string | null
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          preferred_date: string
+          service: Database["public"]["Enums"]["dyno_service"]
+          status: Database["public"]["Enums"]["dyno_booking_status"]
+          time_slot: string
+          updated_at: string
+          user_id: string | null
+          vehicle_brand: string
+          vehicle_hp: number | null
+          vehicle_model: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          email: string
+          fuel?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          preferred_date: string
+          service: Database["public"]["Enums"]["dyno_service"]
+          status?: Database["public"]["Enums"]["dyno_booking_status"]
+          time_slot: string
+          updated_at?: string
+          user_id?: string | null
+          vehicle_brand: string
+          vehicle_hp?: number | null
+          vehicle_model: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          email?: string
+          fuel?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          preferred_date?: string
+          service?: Database["public"]["Enums"]["dyno_service"]
+          status?: Database["public"]["Enums"]["dyno_booking_status"]
+          time_slot?: string
+          updated_at?: string
+          user_id?: string | null
+          vehicle_brand?: string
+          vehicle_hp?: number | null
+          vehicle_model?: string
+        }
+        Relationships: []
+      }
       lead_attachments: {
         Row: {
           created_at: string
@@ -144,6 +204,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      dyno_booking_status:
+        | "angefragt"
+        | "bestaetigt"
+        | "durchgefuehrt"
+        | "storniert"
+      dyno_service:
+        | "leistungsmessung"
+        | "tuning_session"
+        | "vorher_nachher"
+        | "datenlogging"
       lead_status:
         | "neu"
         | "in_bearbeitung"
@@ -277,6 +347,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      dyno_booking_status: [
+        "angefragt",
+        "bestaetigt",
+        "durchgefuehrt",
+        "storniert",
+      ],
+      dyno_service: [
+        "leistungsmessung",
+        "tuning_session",
+        "vorher_nachher",
+        "datenlogging",
+      ],
       lead_status: [
         "neu",
         "in_bearbeitung",

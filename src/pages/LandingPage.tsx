@@ -481,13 +481,13 @@ export default function LandingPage() {
             </StaggerGroup>
 
             <Reveal direction="up" delay={0.3}>
-              <a
-                href="#kontakt"
+              <Link
+                to="/pruefstand-buchung"
                 className="group inline-flex items-center gap-2 border-2 border-[hsl(var(--brand-dark))] text-[hsl(var(--brand-dark))] px-7 py-3.5 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))] hover:text-white transition-all"
               >
-                Termin anfragen
+                Termin buchen
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </Reveal>
           </div>
         </div>

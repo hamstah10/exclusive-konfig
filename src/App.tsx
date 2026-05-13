@@ -11,6 +11,7 @@ import VehicleDetailPage from "./pages/VehicleDetailPage";
 import AuthPage from "./pages/AuthPage";
 import PortalPage from "./pages/PortalPage";
 import WheelConfiguratorPage from "./pages/WheelConfiguratorPage";
+import DynoBookingPage from "./pages/DynoBookingPage";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./hooks/useAuth";
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/portal" element={<PortalPage />} />
           <Route path="/portal/:leadId" element={<PortalPage />} />
           <Route path="/raeder-konfigurator" element={<WheelConfiguratorPage />} />
+          <Route path="/pruefstand-buchung" element={<DynoBookingPage />} />
           <Route path="/v2" element={<Navigate to="/konfigurator" replace />} />
           <Route path="/v2/configurator/:id" element={<Navigate to="/konfigurator" replace />} />
           <Route path="/configurator" element={<Navigate to="/konfigurator" replace />} />
