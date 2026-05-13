@@ -11,10 +11,10 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
 
   const navItems = [
     { label: t('nav.marketplace'), to: '/#fahrzeuge' },
+    { label: 'Ankauf', to: '/#ankauf' },
     { label: t('nav.chiptuning'), to: '/#chiptuning' },
     { label: t('nav.dyno'), to: '/#pruefstand' },
     { label: t('nav.wheels'), to: '/#raeder' },
-    { label: 'Ankauf', to: '/#ankauf' },
     { label: 'Finanzierung', to: '/#finanzierung' },
     { label: t('nav.contact'), to: '/#kontakt' },
   ];
