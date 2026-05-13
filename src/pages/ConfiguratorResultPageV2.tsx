@@ -180,14 +180,16 @@ export default function ConfiguratorResultPageV2() {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <StatCard icon={<Gauge className="h-4 w-4" />} label="Prognose PS" value={`${rec.estimated_hp} PS`} sub={`+${rec.delta_hp} PS`} />
-          <StatCard icon={<Zap className="h-4 w-4" />} label="Prognose Nm" value={`${rec.estimated_nm} Nm`} sub={`+${rec.delta_nm} Nm`} />
+          <StatCard icon={<Gauge className="h-4 w-4" />} label="Prognose PS" value={<><CountUp value={rec.estimated_hp} /> PS</>} sub={<>+<CountUp value={rec.delta_hp} /> PS</>} />
+          <StatCard icon={<Zap className="h-4 w-4" />} label="Prognose Nm" value={<><CountUp value={rec.estimated_nm} /> Nm</>} sub={<>+<CountUp value={rec.delta_nm} /> Nm</>} />
           <StatCard icon={<Layers className="h-4 w-4" />} label="Stage" value={activeStage === ECO_STAGE_ID ? 'Eco' : `Stage ${activeStage}`} sub={rec.stage_label.split(' – ')[1]} />
           <div className="bg-card border border-border rounded-md p-4 relative">
             <div className="flex items-center gap-1.5 mb-2 text-muted-foreground">
               <Euro className="h-4 w-4" /><span className="text-[10px] uppercase tracking-wider font-medium">Gesamtpreis</span>
             </div>
-            <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</p>
+            <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>
+              <CountUp value={stageTotal} format={formatPrice} />
+            </p>
             <Popover>
               <PopoverTrigger asChild>
                 <button
