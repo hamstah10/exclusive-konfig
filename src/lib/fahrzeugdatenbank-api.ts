@@ -1,16 +1,15 @@
 // Fahrzeugdatenbank API service
-// Connects to https://verwaltung.tuningfux.de/api/fahrzeugdatenbank
+// Calls go through the Supabase Edge Function `fahrzeugdatenbank`,
+// which injects the upstream Bearer token + X-Token-Id server-side.
 
-const API_BASE = 'https://verwaltung.tuningfux.de/api/fahrzeugdatenbank';
-
-// TODO: Replace with real tokens
-const API_TOKEN = '4696bcdc17a6a99565c608fdb40be65f0feeef2082ede98e214ae363ba6dbdfb';
-const TOKEN_ID = '0b2e35b123dd33cbb154fc986049f544';
+const PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
+const API_BASE = `https://${PROJECT_ID}.supabase.co/functions/v1/fahrzeugdatenbank`;
+const PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 const headers: Record<string, string> = {
   'Content-Type': 'application/json',
-  'Authorization': `Bearer ${API_TOKEN}`,
-  'X-Token-Id': TOKEN_ID,
+  apikey: PUBLISHABLE_KEY,
+  Authorization: `Bearer ${PUBLISHABLE_KEY}`,
 };
 
 export interface VehicleType {
@@ -59,7 +58,7 @@ async function apiFetch<T>(path: string): Promise<T> {
 }
 
 export function isConfigured(): boolean {
-  return API_TOKEN.length > 0 && TOKEN_ID.length > 0;
+  return Boolean(PROJECT_ID && PUBLISHABLE_KEY);
 }
 
 export async function fetchTypes(): Promise<VehicleType[]> {
