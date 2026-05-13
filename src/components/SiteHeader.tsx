@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User as UserIcon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { label: 'Start', to: '/#top' },
@@ -16,7 +15,6 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const { user } = useAuth();
 
   const base =
     variant === 'overlay'
@@ -47,14 +45,6 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
             className="text-xs uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] hover:bg-[hsl(var(--brand-gold))]/90 transition-colors font-semibold"
           >
             Konfigurator
-          </Link>
-          <Link
-            to={user ? '/portal' : '/auth'}
-            className="text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold transition-colors inline-flex items-center gap-1.5"
-            aria-label={user ? 'Kundenportal' : 'Anmelden'}
-          >
-            <UserIcon className="h-4 w-4" />
-            {user ? 'Portal' : 'Anmelden'}
           </Link>
         </nav>
 
@@ -87,14 +77,6 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
               className="text-sm uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] font-semibold text-center mt-2"
             >
               Konfigurator
-            </Link>
-            <Link
-              to={user ? '/portal' : '/auth'}
-              onClick={() => setOpen(false)}
-              className="text-sm uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold py-1 inline-flex items-center gap-2"
-            >
-              <UserIcon className="h-4 w-4" />
-              {user ? 'Portal' : 'Anmelden'}
             </Link>
           </div>
         </div>
