@@ -3,7 +3,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import {
   Car, Settings2, Gauge, CircleDot, Wallet, ShoppingCart,
-  UserCircle, ShieldCheck, Globe, Sparkles,
+  UserCircle, ShieldCheck, Globe, Sparkles, Type, Palette, MoveRight, Layers,
 } from 'lucide-react';
 import brandLogo from '@/assets/exclusive-automobile-ruegen-logo.png';
 
@@ -301,6 +301,48 @@ export default function DokumentationPage() {
           <p className="text-white/60 text-sm mt-8 max-w-xl mx-auto leading-relaxed">
             Überarbeitete Wortmarke mit klarer Typografie und gebogenem Signet – inspiriert von der Küstenlinie Rügens.
           </p>
+
+          {/* Brand Building Blocks */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-16 text-left">
+            {[
+              {
+                icon: Type,
+                eyebrow: 'Wortmarke',
+                title: 'exclusive',
+                copy: 'Filigrane Sans-Serif in Lowercase – ruhig, präzise und international lesbar. Großzügiger Letter-Spacing-Wert sorgt für eine luftige Anmutung.',
+              },
+              {
+                icon: MoveRight,
+                eyebrow: 'Signet',
+                title: 'Drei Bögen',
+                copy: 'Die geschwungenen Linien zitieren die Küste Rügens und zugleich die Bewegung eines fahrenden Wagens – Heimatverbundenheit trifft Performance.',
+              },
+              {
+                icon: Palette,
+                eyebrow: 'Farbwelt',
+                title: 'Navy & Gold',
+                copy: 'Tiefes Marineblau als Bühne, warmes Gold als Akzent. Reduziert auf zwei Töne, um maximale Wertigkeit ohne Ablenkung zu erzeugen.',
+              },
+              {
+                icon: Layers,
+                eyebrow: 'Anwendung',
+                title: 'Ein Stil – alle Touchpoints',
+                copy: 'Vom Hero über das Portal bis zur Visitenkarte: dasselbe Logo-Lockup, dieselbe Typo-Hierarchie, derselbe ruhige Auftritt.',
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 hover:border-[hsl(var(--brand-gold))]/40 transition-colors"
+              >
+                <item.icon className="h-6 w-6 text-[hsl(var(--brand-gold))] mb-4" />
+                <div className="text-[10px] uppercase tracking-[0.3em] text-white/50 mb-2">
+                  {item.eyebrow}
+                </div>
+                <h3 className="font-display text-xl text-white mb-3">{item.title}</h3>
+                <p className="text-sm text-white/65 leading-relaxed">{item.copy}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
