@@ -19,39 +19,44 @@ import { featuredVehicles } from '@/data/vehicles';
 
 const featuredCars = featuredVehicles();
 
-function TypewriterCycle({ words, className }: { words: string[]; className?: string }) {
-  const [wordIndex, setWordIndex] = useState(0);
-  const [text, setText] = useState('');
-  const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
+function TypewriterOnce({
+  text,
+  startDelay = 0,
+  speed = 60,
+  showCursorWhileTyping = true,
+  className,
+}: {
+  text: string;
+  startDelay?: number;
+  speed?: number;
+  showCursorWhileTyping?: boolean;
+  className?: string;
+}) {
+  const [shown, setShown] = useState(0);
+  const [started, setStarted] = useState(startDelay === 0);
 
   useEffect(() => {
-    const current = words[wordIndex];
-    let delay = 90;
-    if (phase === 'typing') {
-      if (text === current) {
-        delay = 1800;
-        const id = setTimeout(() => setPhase('deleting'), delay);
-        return () => clearTimeout(id);
-      }
-      const id = setTimeout(() => setText(current.slice(0, text.length + 1)), delay);
-      return () => clearTimeout(id);
-    }
-    if (phase === 'deleting') {
-      if (text === '') {
-        setWordIndex((i) => (i + 1) % words.length);
-        setPhase('typing');
-        return;
-      }
-      const id = setTimeout(() => setText(current.slice(0, text.length - 1)), 45);
-      return () => clearTimeout(id);
-    }
-    return undefined;
-  }, [text, phase, wordIndex, words]);
+    if (started) return;
+    const id = setTimeout(() => setStarted(true), startDelay);
+    return () => clearTimeout(id);
+  }, [started, startDelay]);
+
+  useEffect(() => {
+    if (!started || shown >= text.length) return;
+    const id = setTimeout(() => setShown((n) => n + 1), speed);
+    return () => clearTimeout(id);
+  }, [started, shown, text, speed]);
+
+  const done = shown >= text.length;
 
   return (
     <span className={className}>
-      {text}
-      <span className="inline-block w-[0.08em] h-[0.85em] align-[-0.05em] ml-1 bg-current animate-pulse" />
+      {text.slice(0, shown)}
+      {showCursorWhileTyping && !done && (
+        <span className="inline-block w-[0.06em] h-[0.85em] align-[-0.05em] ml-1 bg-current animate-pulse" />
+      )}
+      {/* preserve final layout height */}
+      <span aria-hidden className="invisible">{text.slice(shown)}</span>
     </span>
   );
 }
@@ -110,30 +115,21 @@ function HeroSection() {
             {t('hero.eyebrow')}
           </motion.span>
 
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-6 overflow-hidden">
-            <motion.span
-              initial={{ y: '110%' }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="block"
-            >
-              {t('hero.title1')}
-            </motion.span>
-            <motion.span
-              initial={{ y: '110%' }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.9, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="block italic text-brand-gold"
-            >
-              <TypewriterCycle
-                words={[
-                  t('hero.title2') as string,
-                  'of tuning.',
-                  'of performance.',
-                  'of precision.',
-                ]}
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-6">
+            <span className="block">
+              <TypewriterOnce
+                text={t('hero.title1') as string}
+                startDelay={300}
+                speed={55}
               />
-            </motion.span>
+            </span>
+            <span className="block italic text-brand-gold">
+              <TypewriterOnce
+                text={t('hero.title2') as string}
+                startDelay={300 + (t('hero.title1') as string).length * 55 + 150}
+                speed={55}
+              />
+            </span>
           </h1>
 
           <motion.p
