@@ -21,6 +21,8 @@ export type LeadTargetVehicle = {
   brand: string;
   model: string;
   priceLabel?: string;
+  /** Optional override of the lead label (e.g. "BMW M340i · Stage 2"). */
+  label?: string;
 };
 
 type Props = {
@@ -137,7 +139,7 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
       user_id: user?.id ?? null,
       vehicle_slug: vehicle.slug,
       vehicle_id: vehicle.slug,
-      vehicle_label: `${vehicle.brand} ${vehicle.model}`,
+      vehicle_label: vehicle.label ?? `${vehicle.brand} ${vehicle.model}`,
       name: parsed.data.name,
       email: parsed.data.email,
       phone: parsed.data.phone || null,
