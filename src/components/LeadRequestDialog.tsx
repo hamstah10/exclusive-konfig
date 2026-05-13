@@ -80,6 +80,7 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
     const { error } = await supabase.from('leads').insert({
       user_id: user?.id ?? null,
       vehicle_slug: vehicle.slug,
+      vehicle_id: vehicle.slug,
       vehicle_label: `${vehicle.brand} ${vehicle.model}`,
       name: parsed.data.name,
       email: parsed.data.email,

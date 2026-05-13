@@ -29,6 +29,7 @@ export type Database = {
           trade_in: boolean
           updated_at: string
           user_id: string | null
+          vehicle_id: string
           vehicle_label: string
           vehicle_slug: string
         }
@@ -46,6 +47,7 @@ export type Database = {
           trade_in?: boolean
           updated_at?: string
           user_id?: string | null
+          vehicle_id: string
           vehicle_label: string
           vehicle_slug: string
         }
@@ -63,6 +65,7 @@ export type Database = {
           trade_in?: boolean
           updated_at?: string
           user_id?: string | null
+          vehicle_id?: string
           vehicle_label?: string
           vehicle_slug?: string
         }

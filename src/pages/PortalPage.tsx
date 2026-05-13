@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal } from '@/components/Reveal';
 import type { Database } from '@/integrations/supabase/types';
+import { findVehicle } from '@/data/vehicles';
 
 type Lead = Database['public']['Tables']['leads']['Row'];
 
@@ -174,15 +175,34 @@ export default function PortalPage() {
           <div className="space-y-4">
             {leads.map((lead) => {
               const meta = STATUS_META[lead.status];
+              const vehicle = findVehicle(lead.vehicle_id ?? lead.vehicle_slug);
               return (
                 <article key={lead.id} className="bg-card border border-border p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-1">
-                        Angefragt am {fmtDate(lead.created_at)}
+                    <Link
+                      to={`/fahrzeuge/${lead.vehicle_slug}`}
+                      className="group flex items-center gap-4 min-w-0 flex-1"
+                    >
+                      {vehicle && (
+                        <img
+                          src={vehicle.img}
+                          alt={lead.vehicle_label}
+                          className="h-16 w-24 object-cover border border-border flex-shrink-0 group-hover:opacity-90 transition-opacity"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="min-w-0">
+                        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                          Angefragt am {fmtDate(lead.created_at)}
+                        </div>
+                        <h3 className="font-display text-xl group-hover:text-[hsl(var(--brand-gold))] transition-colors truncate">
+                          {lead.vehicle_label}
+                        </h3>
+                        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 mt-1 font-mono">
+                          ID · {lead.vehicle_id ?? lead.vehicle_slug}
+                        </div>
                       </div>
-                      <h3 className="font-display text-xl">{lead.vehicle_label}</h3>
-                    </div>
+                    </Link>
                     <span
                       className={`inline-flex items-center text-[10px] uppercase tracking-[0.2em] px-3 py-1 border ${meta.tone}`}
                     >
