@@ -31,6 +31,8 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
   const [profileName, setProfileName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [createdLeadId, setCreatedLeadId] = useState<string | null>(null);
+  const [redirectIn, setRedirectIn] = useState<number | null>(null);
 
   const MAX_FILES = 5;
   const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -40,6 +42,8 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
     if (!open) {
       setSuccess(false);
       setFiles([]);
+      setCreatedLeadId(null);
+      setRedirectIn(null);
       return;
     }
     if (user) {
@@ -54,6 +58,26 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
         });
     }
   }, [open, user]);
+
+  // Auto-redirect logged-in users to the deep-linked lead status after success
+  useEffect(() => {
+    if (!success || !user || !createdLeadId) return;
+    setRedirectIn(5);
+    const target = `/portal/${createdLeadId}`;
+    const interval = setInterval(() => {
+      setRedirectIn((s) => {
+        if (s === null) return null;
+        if (s <= 1) {
+          clearInterval(interval);
+          onOpenChange(false);
+          navigate(target);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [success, user, createdLeadId, navigate, onOpenChange]);
 
   // ESC to close
   useEffect(() => {
@@ -160,6 +184,7 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
     }
 
     setLoading(false);
+    if (leadRow) setCreatedLeadId(leadRow.id);
     setSuccess(true);
     toast.success('Anfrage gesendet — wir melden uns in Kürze.');
   };
@@ -202,21 +227,34 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
               Vielen Dank! Unser Team meldet sich innerhalb von 24 Stunden bei dir.
               {!user && ' Erstelle ein Konto, um den Status deiner Anfrage jederzeit einzusehen.'}
             </p>
+            {createdLeadId && (
+              <div className="mb-6 inline-flex flex-col items-center gap-1 bg-secondary border border-border px-4 py-3">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Anfrage-Referenz
+                </span>
+                <code className="text-xs font-mono">{createdLeadId.slice(0, 8).toUpperCase()}</code>
+              </div>
+            )}
+            {user && redirectIn !== null && redirectIn > 0 && (
+              <p className="text-xs text-muted-foreground mb-4">
+                Du wirst in {redirectIn}s zu deiner Anfrage weitergeleitet …
+              </p>
+            )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {user ? (
                 <button
                   type="button"
                   onClick={() => {
                     onOpenChange(false);
-                    navigate('/portal');
+                    navigate(createdLeadId ? `/portal/${createdLeadId}` : '/portal');
                   }}
                   className="inline-flex items-center justify-center gap-2 bg-[hsl(var(--brand-dark))] text-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))]/90"
                 >
-                  <Sparkles className="h-4 w-4" /> Zum Portal
+                  <Sparkles className="h-4 w-4" /> Jetzt zur Anfrage
                 </button>
               ) : (
                 <Link
-                  to="/auth?redirect=/portal"
+                  to={`/auth?redirect=${encodeURIComponent(createdLeadId ? `/portal/${createdLeadId}` : '/portal')}`}
                   className="inline-flex items-center justify-center gap-2 bg-[hsl(var(--brand-dark))] text-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))]/90"
                 >
                   Konto erstellen
