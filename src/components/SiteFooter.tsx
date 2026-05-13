@@ -9,7 +9,7 @@ export function SiteFooter() {
     <footer id="kontakt" className="bg-brand-dark text-[hsl(var(--brand-dark-foreground))] mt-24">
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div className="md:col-span-1">
-          <SiteLogo variant="stamp" size={120} className="mb-5" />
+          <SiteLogo size="md" className="mb-5" />
           <p className="text-sm text-white/70 leading-relaxed">
             {t('footer.tagline')}
           </p>
