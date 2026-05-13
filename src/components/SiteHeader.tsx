@@ -7,7 +7,7 @@ const navItems = [
   { label: 'Fahrzeugbörse', to: '/#fahrzeuge' },
   { label: 'Chiptuning', to: '/#chiptuning' },
   { label: 'Prüfstand', to: '/#pruefstand' },
-  { label: 'Räder & Reifen', to: '/#raeder' },
+  { label: 'Räder & Reifen', to: '/raeder-konfigurator' },
   { label: 'Kontakt', to: '/#kontakt' },
 ];
 
