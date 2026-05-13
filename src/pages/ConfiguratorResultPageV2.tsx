@@ -17,6 +17,7 @@ import { getResult, stageConfigs, getStageTotalPrice, formatPrice, getAvailableS
 import { getEcuManufacturer } from '@/lib/ecu';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { LeadRequestDialog } from '@/components/LeadRequestDialog';
 
 function mergedCompareData(stages: { dynoPoints: { rpm: number; power: number; torque: number }[] }[]) {
   const s1 = stages[0]?.dynoPoints ?? [];
@@ -46,6 +47,7 @@ export default function ConfiguratorResultPageV2() {
   const [copied, setCopied] = useState(false);
   const [activeStage, setActiveStage] = useState(result?.selectedStage ?? 1);
   const [compareMode, setCompareMode] = useState(false);
+  const [leadOpen, setLeadOpen] = useState(false);
 
   if (!result) {
     return (
@@ -310,8 +312,45 @@ export default function ConfiguratorResultPageV2() {
           </div>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-10 bg-brand-dark text-white rounded-md p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+        >
+          <div>
+            <span className="text-xs uppercase tracking-[0.3em] text-brand-gold">Bereit?</span>
+            <h3 className="font-display text-2xl md:text-3xl mt-2">
+              Tuning für deinen <span className="italic text-brand-gold">{vehicle.brand} {vehicle.model}</span> anfragen
+            </h3>
+            <p className="text-white/70 text-sm mt-2 max-w-xl">
+              Wir melden uns mit einem verbindlichen Angebot inkl. Termin auf unserem 4WD-Prüfstand.
+              Stage {activeStage} · Gesamtpreis ca. {formatPrice(stageTotal)}.
+            </p>
+          </div>
+          <Button
+            size="lg"
+            onClick={() => setLeadOpen(true)}
+            className="bg-brand-gold text-brand-dark hover:bg-brand-gold/90 font-semibold uppercase tracking-[0.15em]"
+          >
+            Angebot anfragen
+          </Button>
+        </motion.div>
+
       </main>
       <SiteFooter />
+
+      <LeadRequestDialog
+        open={leadOpen}
+        onOpenChange={setLeadOpen}
+        vehicle={{
+          slug: `tuning-${vehicle.brand}-${vehicle.model}-stage${activeStage}-${id}`.toLowerCase().replace(/[^a-z0-9-]+/g, '-'),
+          brand: vehicle.brand,
+          model: vehicle.model,
+          label: `Chiptuning · ${vehicle.brand} ${vehicle.model} · Stage ${activeStage}`,
+          priceLabel: `ca. ${formatPrice(stageTotal)}`,
+        }}
+      />
     </div>
   );
 }
