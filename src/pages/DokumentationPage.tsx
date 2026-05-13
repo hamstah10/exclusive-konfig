@@ -343,6 +343,159 @@ export default function DokumentationPage() {
               </article>
             ))}
           </div>
+
+          {/* Brand Specimen */}
+          <div className="mt-24 text-left">
+            <div className="flex items-center gap-3 mb-10">
+              <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/50">Specimen</span>
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-px bg-white/10 border border-white/10">
+              {/* Typo-Skala */}
+              <div className="bg-[hsl(var(--brand-dark))] p-8">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-6">type · scale</div>
+                <div className="space-y-5">
+                  {[
+                    { meta: 'display · 64', cls: 'text-5xl tracking-tight', text: 'exclusive' },
+                    { meta: 'headline · 32', cls: 'text-2xl tracking-tight', text: 'automobile' },
+                    { meta: 'body · 16', cls: 'text-base text-white/70', text: 'handverlesen. heimat. rügen.' },
+                    { meta: 'eyebrow · 11', cls: 'text-[11px] uppercase tracking-[0.3em] text-white/50', text: 'since 2009' },
+                  ].map((row) => (
+                    <div key={row.meta} className="flex items-baseline gap-4">
+                      <span className="text-[9px] uppercase tracking-[0.3em] text-white/30 w-24 shrink-0">{row.meta}</span>
+                      <span className={`text-white lowercase font-light ${row.cls}`}>{row.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Farbpalette */}
+              <div className="bg-[hsl(var(--brand-dark))] p-8">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-6">color · palette</div>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { name: 'navy', hex: '#1A2332', bg: 'bg-[hsl(218_35%_14%)] border-white/15' },
+                    { name: 'gold', hex: '#C2924B', bg: 'bg-[hsl(var(--brand-gold))]' },
+                    { name: 'silver', hex: '#C8CCD1', bg: 'bg-[#C8CCD1]' },
+                  ].map((c) => (
+                    <div key={c.name}>
+                      <div className={`h-32 ${c.bg} border border-white/10`} />
+                      <div className="mt-3 text-[10px] uppercase tracking-[0.25em] text-white/60">{c.name}</div>
+                      <div className="text-[10px] font-mono text-white/40 mt-0.5">{c.hex}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Logo-Lockups */}
+              <div className="bg-[hsl(var(--brand-dark))] p-8 flex flex-col">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-6">mark · lockups</div>
+                <div className="flex-1 flex flex-col justify-around gap-6">
+                  {[
+                    { size: 'h-6', label: 's · 24' },
+                    { size: 'h-10', label: 'm · 40' },
+                    { size: 'h-16', label: 'l · 64' },
+                  ].map((row) => (
+                    <div key={row.label} className="border-b border-white/10 pb-4">
+                      <img src={brandLogo} alt="" className={`${row.size} w-auto`} />
+                      <div className="mt-3 text-[9px] uppercase tracking-[0.3em] text-white/30">{row.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mini-Hero-Beispiele */}
+          <div className="mt-24 text-left">
+            <div className="flex items-center gap-3 mb-10">
+              <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/50">Hero · Examples</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-px bg-white/10 border border-white/10">
+              {[
+                {
+                  eyebrow: 'tuning · stage 2',
+                  title: 'more joy',
+                  accent: 'of driving.',
+                  copy: 'feinjustierte software, messbare leistung. jedes setup einzeln auf unserem 4wd-prüfstand bestätigt.',
+                  cta: 'configure',
+                },
+                {
+                  eyebrow: 'fahrzeuge · bestand',
+                  title: 'handverlesen.',
+                  accent: 'heimat.',
+                  copy: 'sportwagen, gts und youngtimer aus erster hand – kuratiert von der ostsee bis nach südeuropa.',
+                  cta: 'view fleet',
+                },
+              ].map((hero) => (
+                <article key={hero.title} className="bg-[hsl(var(--brand-dark))] p-10 md:p-14 flex flex-col">
+                  <div className="text-[10px] uppercase tracking-[0.4em] text-white/45 mb-8 flex items-center gap-3">
+                    <span className="h-px w-6 bg-white/30" />
+                    {hero.eyebrow}
+                  </div>
+                  <h3 className="font-display text-4xl md:text-5xl text-white lowercase tracking-tight font-light leading-[1.05] mb-4">
+                    {hero.title}{' '}
+                    <em className="italic text-[hsl(var(--brand-gold))] font-light">{hero.accent}</em>
+                  </h3>
+                  <p className="text-sm text-white/55 leading-relaxed max-w-sm mb-10">{hero.copy}</p>
+                  <button
+                    type="button"
+                    className="self-start inline-flex items-center gap-3 border border-white/30 hover:border-[hsl(var(--brand-gold))] hover:text-[hsl(var(--brand-gold))] text-white text-[10px] uppercase tracking-[0.4em] px-6 py-3 transition-colors"
+                  >
+                    {hero.cta}
+                    <span className="h-px w-6 bg-current" />
+                  </button>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {/* Card Set */}
+          <div className="mt-24 text-left mb-4">
+            <div className="flex items-center gap-3 mb-10">
+              <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/50">Service · Cards</span>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                {
+                  no: '01',
+                  title: 'prüfstand',
+                  copy: '4wd-rollenprüfstand bis 1.500 ps. messung, dokumentation, video. termin in 24 h verfügbar.',
+                },
+                {
+                  no: '02',
+                  title: 'chiptuning',
+                  copy: 'individuelle ecu-kalibrierung – stage 1, 2 oder custom. tüv-konform, mit garantie und protokoll.',
+                },
+                {
+                  no: '03',
+                  title: 'ankauf',
+                  copy: 'fahrzeugbewertung in unter 24 stunden. transparenter preis, abholung deutschlandweit.',
+                },
+              ].map((card) => (
+                <article
+                  key={card.no}
+                  className="border border-white/15 hover:border-[hsl(var(--brand-gold))]/50 transition-colors p-8 group"
+                >
+                  <div className="flex items-baseline justify-between mb-8">
+                    <span className="font-mono text-[11px] tracking-[0.2em] text-white/35">{card.no} / 03</span>
+                    <span className="h-px w-12 bg-[hsl(var(--brand-gold))]/60" />
+                  </div>
+                  <h3 className="font-display text-2xl text-white lowercase font-light tracking-tight mb-4">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-white/55 leading-relaxed mb-8">{card.copy}</p>
+                  <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-white/60 group-hover:text-[hsl(var(--brand-gold))] transition-colors">
+                    learn more
+                    <span className="h-px w-6 bg-current" />
+                  </span>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
