@@ -1,22 +1,33 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, ArrowRight, Calendar, Cog, Fuel, Gauge, Palette, Sparkles,
-  ShieldCheck, Phone, Mail, Settings2, Car as CarIcon,
+  ShieldCheck, Phone, Mail, Settings2, Car as CarIcon, Loader2,
 } from 'lucide-react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
-import { findVehicle, vehicles } from '@/data/vehicles';
+import { usePublicVehicles } from '@/lib/vehicles-db';
 import { LeadRequestDialog } from '@/components/LeadRequestDialog';
 
 export default function VehicleDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const vehicle = slug ? findVehicle(slug) : undefined;
+  const { vehicles, loading } = usePublicVehicles();
+  const vehicle = useMemo(
+    () => (slug ? vehicles.find((v) => v.slug === slug) : undefined),
+    [vehicles, slug],
+  );
   const [activeImg, setActiveImg] = useState(0);
   const [leadOpen, setLeadOpen] = useState(false);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-brand-gold" />
+      </div>
+    );
+  }
   if (!vehicle) return <Navigate to="/fahrzeuge" replace />;
 
   const specs = [

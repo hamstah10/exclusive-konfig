@@ -6,7 +6,8 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
 import { ParallaxImage } from '@/components/Parallax';
-import { vehicles, type Vehicle } from '@/data/vehicles';
+import { type Vehicle } from '@/data/vehicles';
+import { usePublicVehicles } from '@/lib/vehicles-db';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -64,6 +65,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 }
 
 export default function MarketplacePage() {
+  const { vehicles } = usePublicVehicles();
   const [category, setCategory] = useState<(typeof categories)[number]>('Alle');
   const [sort, setSort] = useState<SortKey>('newest');
   const [search, setSearch] = useState('');
@@ -72,16 +74,16 @@ export default function MarketplacePage() {
   const [transmissions, setTransmissions] = useState<string[]>([]);
   const [drives, setDrives] = useState<string[]>([]);
 
-  const allBrands = useMemo(() => Array.from(new Set(vehicles.map((v) => v.brand))).sort(), []);
-  const allFuels = useMemo(() => Array.from(new Set(vehicles.map((v) => v.fuel))).sort(), []);
-  const allTransmissions = useMemo(() => Array.from(new Set(vehicles.map((v) => v.transmission))).sort(), []);
-  const allDrives = useMemo(() => Array.from(new Set(vehicles.map((v) => v.drive))).sort(), []);
+  const allBrands = useMemo(() => Array.from(new Set(vehicles.map((v) => v.brand))).sort(), [vehicles]);
+  const allFuels = useMemo(() => Array.from(new Set(vehicles.map((v) => v.fuel))).sort(), [vehicles]);
+  const allTransmissions = useMemo(() => Array.from(new Set(vehicles.map((v) => v.transmission))).sort(), [vehicles]);
+  const allDrives = useMemo(() => Array.from(new Set(vehicles.map((v) => v.drive))).sort(), [vehicles]);
 
-  const yearMin = useMemo(() => Math.min(...vehicles.map((v) => v.year)), []);
-  const yearMax = useMemo(() => Math.max(...vehicles.map((v) => v.year)), []);
-  const priceMax = useMemo(() => Math.max(...vehicles.map((v) => v.price)), []);
-  const kmMax = useMemo(() => Math.max(...vehicles.map((v) => v.km)), []);
-  const hpMax = useMemo(() => Math.max(...vehicles.map((v) => v.hp)), []);
+  const yearMin = useMemo(() => (vehicles.length ? Math.min(...vehicles.map((v) => v.year)) : 2000), [vehicles]);
+  const yearMax = useMemo(() => (vehicles.length ? Math.max(...vehicles.map((v) => v.year)) : new Date().getFullYear()), [vehicles]);
+  const priceMax = useMemo(() => (vehicles.length ? Math.max(...vehicles.map((v) => v.price)) : 250000), [vehicles]);
+  const kmMax = useMemo(() => (vehicles.length ? Math.max(...vehicles.map((v) => v.km)) : 200000), [vehicles]);
+  const hpMax = useMemo(() => (vehicles.length ? Math.max(...vehicles.map((v) => v.hp)) : 800), [vehicles]);
 
   const [yearRange, setYearRange] = useState<[number, number]>([yearMin, yearMax]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, priceMax]);
@@ -135,7 +137,7 @@ export default function MarketplacePage() {
         sorted.sort((a, b) => b.year - a.year);
     }
     return sorted;
-  }, [category, sort, search, brands, fuels, transmissions, drives, yearRange, priceRange, kmLimit, hpMin]);
+  }, [vehicles, category, sort, search, brands, fuels, transmissions, drives, yearRange, priceRange, kmLimit, hpMin]);
 
   const activeCount =
     (category !== 'Alle' ? 1 : 0) +
@@ -160,7 +162,7 @@ export default function MarketplacePage() {
       <section className="relative bg-brand-dark text-white py-24 md:py-32 overflow-hidden border-b border-[hsl(var(--brand-gold))]/20">
         <div className="absolute inset-0 opacity-20">
           <ParallaxImage
-            src={vehicles[0].img}
+            src={vehicles[0]?.img ?? ''}
             alt=""
             offset={20}
             width={1920}
