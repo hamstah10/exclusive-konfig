@@ -30,6 +30,7 @@ const App = () => (
           <Route path="/fahrzeuge/:slug" element={<VehicleDetailPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/portal" element={<PortalPage />} />
+          <Route path="/portal/:leadId" element={<PortalPage />} />
           <Route path="/v2" element={<Navigate to="/konfigurator" replace />} />
           <Route path="/v2/configurator/:id" element={<Navigate to="/konfigurator" replace />} />
           <Route path="/configurator" element={<Navigate to="/konfigurator" replace />} />
