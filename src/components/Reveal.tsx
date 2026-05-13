@@ -83,12 +83,37 @@ export function StaggerGroup({ children, className, stagger = 0.1, delay = 0, am
   );
 }
 
-export function StaggerItem({ children, className, distance = 24 }: { children: ReactNode; className?: string; distance?: number }) {
+export function StaggerItem({
+  children,
+  className,
+  distance = 24,
+  direction = 'up',
+}: {
+  children: ReactNode;
+  className?: string;
+  distance?: number;
+  direction?: Direction;
+}) {
+  const map: Record<Direction, { x?: number; y?: number; scale?: number }> = {
+    up: { y: distance },
+    down: { y: -distance },
+    left: { x: distance },
+    right: { x: -distance },
+    fade: {},
+    scale: { scale: 0.9, y: distance / 2 },
+  };
+  const from = map[direction];
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: distance },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+        hidden: { opacity: 0, ...from },
+        visible: {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+        },
       }}
       className={className}
     >
