@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { SiteLogo } from '@/components/SiteLogo';
+import { SiteLogo, RuegenIcon } from '@/components/SiteLogo';
 
 const items = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard, end: true },
@@ -36,11 +36,13 @@ function AdminSidebar() {
       <SidebarContent className="bg-[hsl(var(--brand-dark))] text-white">
         <div className={`px-4 py-5 border-b border-white/10 ${collapsed ? 'text-center' : ''}`}>
           {collapsed ? (
-            <SiteLogo variant="mark" size={32} />
+            <Link to="/" aria-label="exclusiv Automobile Rügen" className="inline-flex">
+              <RuegenIcon className="h-5 w-10 text-[hsl(var(--brand-gold))] mx-auto" />
+            </Link>
           ) : (
             <div className="flex items-center gap-3">
-              <SiteLogo variant="mark" size={36} />
-              <span className="font-display tracking-[0.2em] text-white/80 text-xs uppercase">
+              <SiteLogo size="sm" />
+              <span className="font-display tracking-[0.2em] text-white/60 text-[10px] uppercase">
                 Admin
               </span>
             </div>
