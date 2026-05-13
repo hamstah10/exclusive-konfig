@@ -22,6 +22,7 @@ import AdminLayout from "./components/AdminLayout";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
+import AdminAnkaufPage from "./pages/AdminAnkaufPage";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./hooks/useAuth";
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route index element={<AdminDashboardPage />} />
             <Route path="anfragen" element={<AdminLeadsPage />} />
             <Route path="pruefstand" element={<AdminBookingsPage />} />
+            <Route path="ankauf" element={<AdminAnkaufPage />} />
           </Route>
           <Route path="/v2" element={<Navigate to="/konfigurator" replace />} />
           <Route path="/v2/configurator/:id" element={<Navigate to="/konfigurator" replace />} />
