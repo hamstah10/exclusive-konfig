@@ -17,6 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { SiteLogo } from '@/components/SiteLogo';
 
 const items = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard, end: true },
@@ -34,15 +35,16 @@ function AdminSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-[hsl(var(--brand-dark))] text-white">
         <div className={`px-4 py-5 border-b border-white/10 ${collapsed ? 'text-center' : ''}`}>
-          <Link to="/" className="flex items-baseline gap-1.5 leading-none">
-            <span className="font-display italic text-brand-gold text-base">e</span>
-            {!collapsed && (
-              <>
-                <span className="font-display italic text-brand-gold text-base">A</span>
-                <span className="font-display tracking-wider text-white/80 text-xs uppercase ml-1">Admin</span>
-              </>
-            )}
-          </Link>
+          {collapsed ? (
+            <SiteLogo variant="mark" size={32} />
+          ) : (
+            <div className="flex items-center gap-3">
+              <SiteLogo variant="mark" size={36} />
+              <span className="font-display tracking-[0.2em] text-white/80 text-xs uppercase">
+                Admin
+              </span>
+            </div>
+          )}
         </div>
         <SidebarGroup>
           {!collapsed && <SidebarGroupLabel className="text-white/40">Verwaltung</SidebarGroupLabel>}
