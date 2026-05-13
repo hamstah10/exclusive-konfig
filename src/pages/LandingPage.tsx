@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowRight, Gauge, Wrench, Car, Activity, ShieldCheck, Sparkles,
@@ -18,6 +18,43 @@ import { ParallaxImage } from '@/components/Parallax';
 import { featuredVehicles } from '@/data/vehicles';
 
 const featuredCars = featuredVehicles();
+
+function TypewriterCycle({ words, className }: { words: string[]; className?: string }) {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [text, setText] = useState('');
+  const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
+
+  useEffect(() => {
+    const current = words[wordIndex];
+    let delay = 90;
+    if (phase === 'typing') {
+      if (text === current) {
+        delay = 1800;
+        const id = setTimeout(() => setPhase('deleting'), delay);
+        return () => clearTimeout(id);
+      }
+      const id = setTimeout(() => setText(current.slice(0, text.length + 1)), delay);
+      return () => clearTimeout(id);
+    }
+    if (phase === 'deleting') {
+      if (text === '') {
+        setWordIndex((i) => (i + 1) % words.length);
+        setPhase('typing');
+        return;
+      }
+      const id = setTimeout(() => setText(current.slice(0, text.length - 1)), 45);
+      return () => clearTimeout(id);
+    }
+    return undefined;
+  }, [text, phase, wordIndex, words]);
+
+  return (
+    <span className={className}>
+      {text}
+      <span className="inline-block w-[0.08em] h-[0.85em] align-[-0.05em] ml-1 bg-current animate-pulse" />
+    </span>
+  );
+}
 
 function HeroSection() {
   const { t } = useTranslation();
@@ -88,7 +125,14 @@ function HeroSection() {
               transition={{ duration: 0.9, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="block italic text-brand-gold"
             >
-              {t('hero.title2')}
+              <TypewriterCycle
+                words={[
+                  t('hero.title2') as string,
+                  'of tuning.',
+                  'of performance.',
+                  'of precision.',
+                ]}
+              />
             </motion.span>
           </h1>
 
