@@ -1,7 +1,8 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Menu, X, Globe, Settings2, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SiteLogo } from '@/components/SiteLogo';
 
 export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'solid' }) {
   const [open, setOpen] = useState(false);
@@ -52,11 +53,7 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
   return (
     <header className={base}>
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-baseline gap-2 leading-none">
-          <span className="font-display italic text-brand-gold text-xl">exclusiv</span>
-          <span className="font-display tracking-wider text-white text-lg uppercase">Automobile</span>
-          <span className="font-display italic text-brand-gold text-base">Rügen</span>
-        </Link>
+        <SiteLogo variant="horizontal" size={scrolled ? 36 : 44} />
 
         <nav className="hidden lg:flex items-center gap-7">
           {navItems.map((item) =>
