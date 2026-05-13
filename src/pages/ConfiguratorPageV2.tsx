@@ -6,14 +6,16 @@ import { Leaf, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
 import { Button } from '@/components/ui/button';
 import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs } from '@/lib/configurator-store';
-import { lookupVehicleSpec, getModelsForBrand } from '@/lib/vehicle-database';
 import VehicleSearch from '@/components/VehicleSearch';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import type { VehicleSpec } from '@/lib/vehicle-database';
 import type { Vehicle } from '@/types/models';
+import {
+  fetchTypes, fetchBrands, fetchSeries, fetchModels, fetchEngines, fetchEngineDetails,
+  type VehicleType, type VehicleBrand, type VehicleSeries, type VehicleModel, type VehicleEngine,
+} from '@/lib/fahrzeugdatenbank-api';
 
-const brands = ['Volkswagen', 'BMW', 'Mercedes-Benz', 'Audi', 'Porsche', 'Ford', 'Seat', 'Skoda', 'Toyota', 'Hyundai', 'Cupra', 'Kia', 'Renault', 'Nissan', 'Mazda', 'Subaru', 'Honda', 'Mitsubishi'];
 const transmissions: Vehicle['transmission'][] = ['manual', 'automatic', 'dsg', 'dct', 'cvt'];
 const fuelTypes: Vehicle['fuel_type'][] = ['petrol', 'diesel', 'hybrid', 'electric'];
 
@@ -23,6 +25,26 @@ const transmissionLabels: Record<string, string> = {
 const fuelLabels: Record<string, string> = {
   petrol: 'Benzin', diesel: 'Diesel', hybrid: 'Hybrid', electric: 'Elektrisch',
 };
+
+function mapFuel(raw: unknown): Vehicle['fuel_type'] | null {
+  if (typeof raw !== 'string') return null;
+  const v = raw.toLowerCase();
+  if (v.includes('diesel')) return 'diesel';
+  if (v.includes('benz') || v.includes('petrol') || v.includes('otto')) return 'petrol';
+  if (v.includes('hybrid')) return 'hybrid';
+  if (v.includes('elektr') || v.includes('electric') || v === 'ev') return 'electric';
+  return null;
+}
+
+function pickNum(obj: Record<string, unknown> | undefined, keys: string[]): number {
+  if (!obj) return 0;
+  for (const k of keys) {
+    const v = obj[k];
+    if (typeof v === 'number' && !Number.isNaN(v)) return Math.round(v);
+    if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Math.round(Number(v));
+  }
+  return 0;
+}
 
 const riskIcons: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
   low: { icon: <Shield className="h-4 w-4" />, color: 'text-[hsl(var(--success))]', label: 'Niedrig' },
@@ -35,16 +57,111 @@ export default function ConfiguratorPageV2() {
   const [loading, setLoading] = useState(false);
   const [selectedStage, setSelectedStage] = useState(1);
   const [autoDetected, setAutoDetected] = useState(false);
-  const [suggestedModels, setSuggestedModels] = useState<string[]>([]);
   const [form, setForm] = useState({
-    brand: '', model: '', year: new Date().getFullYear(),
-    engine_code: '', ecu_type: '',
+    brand: '', model: '',
     transmission: 'manual' as Vehicle['transmission'],
     fuel_type: 'petrol' as Vehicle['fuel_type'],
     stock_hp: 0, stock_nm: 0,
   });
 
+  // Cascade state (API-driven)
+  const [typeId, setTypeId] = useState<number | null>(null);
+  const [brands, setBrands] = useState<VehicleBrand[]>([]);
+  const [seriesList, setSeriesList] = useState<VehicleSeries[]>([]);
+  const [modelsList, setModelsList] = useState<VehicleModel[]>([]);
+  const [enginesList, setEnginesList] = useState<VehicleEngine[]>([]);
+  const [brandId, setBrandId] = useState<number | null>(null);
+  const [seriesId, setSeriesId] = useState<number | null>(null);
+  const [modelId, setModelId] = useState<number | null>(null);
+  const [engineId, setEngineId] = useState<number | null>(null);
+  const [cascadeLoading, setCascadeLoading] = useState<'brands' | 'series' | 'models' | 'engines' | 'details' | null>(null);
+  const [cascadeError, setCascadeError] = useState<string | null>(null);
+
   const isValid = form.brand.trim() !== '' && form.model.trim() !== '';
+
+  // Init: fetch types and pick first (typically PKW)
+  useEffect(() => {
+    fetchTypes()
+      .then((types: VehicleType[]) => {
+        const pkw = types.find((t) => t.name?.toLowerCase().includes('pkw')) ?? types[0];
+        if (pkw) setTypeId(pkw.id);
+      })
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'));
+  }, []);
+
+  // Brands when type ready
+  useEffect(() => {
+    if (typeId === null) return;
+    setCascadeLoading('brands');
+    fetchBrands(typeId)
+      .then(setBrands)
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
+      .finally(() => setCascadeLoading((p) => (p === 'brands' ? null : p)));
+  }, [typeId]);
+
+  // Series when brand chosen
+  useEffect(() => {
+    setSeriesList([]); setModelsList([]); setEnginesList([]);
+    setSeriesId(null); setModelId(null); setEngineId(null);
+    if (brandId === null) return;
+    setCascadeLoading('series');
+    fetchSeries(brandId)
+      .then(setSeriesList)
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
+      .finally(() => setCascadeLoading((p) => (p === 'series' ? null : p)));
+  }, [brandId]);
+
+  // Models when series chosen
+  useEffect(() => {
+    setModelsList([]); setEnginesList([]);
+    setModelId(null); setEngineId(null);
+    if (seriesId === null) return;
+    setCascadeLoading('models');
+    fetchModels(seriesId)
+      .then(setModelsList)
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
+      .finally(() => setCascadeLoading((p) => (p === 'models' ? null : p)));
+  }, [seriesId]);
+
+  // Engines when model chosen
+  useEffect(() => {
+    setEnginesList([]);
+    setEngineId(null);
+    if (modelId === null) return;
+    setCascadeLoading('engines');
+    fetchEngines(modelId)
+      .then(setEnginesList)
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
+      .finally(() => setCascadeLoading((p) => (p === 'engines' ? null : p)));
+  }, [modelId]);
+
+  // Engine details → autofill PS/Nm/Fuel + brand/model
+  useEffect(() => {
+    if (engineId === null) return;
+    setCascadeLoading('details');
+    setCascadeError(null);
+    fetchEngineDetails(engineId)
+      .then((details) => {
+        const engine = details.engine ?? {};
+        const stockHp = pickNum(engine, ['power', 'ps', 'hp', 'kw_power', 'series_power']);
+        const stockNm = pickNum(engine, ['torque', 'nm', 'series_torque']);
+        const fuel = mapFuel((engine as Record<string, unknown>).fuel ?? (engine as Record<string, unknown>).fuel_type);
+        const brandName = (details.brand?.name as string | undefined) ?? brands.find((b) => b.id === brandId)?.name ?? '';
+        const engineName = enginesList.find((e) => e.id === engineId)?.name ?? '';
+        const modelName = modelsList.find((m) => m.id === modelId)?.name ?? '';
+        setForm((prev) => ({
+          ...prev,
+          brand: brandName,
+          model: [modelName, engineName].filter(Boolean).join(' ').trim() || prev.model,
+          stock_hp: stockHp || prev.stock_hp,
+          stock_nm: stockNm || prev.stock_nm,
+          fuel_type: fuel ?? prev.fuel_type,
+        }));
+        setAutoDetected(true);
+      })
+      .catch((err) => setCascadeError(err instanceof Error ? err.message : 'Fehler beim Laden'))
+      .finally(() => setCascadeLoading((p) => (p === 'details' ? null : p)));
+  }, [engineId, brandId, modelId, brands, modelsList, enginesList]);
 
   // Eco-Stage zurücksetzen, wenn nicht mehr Diesel
   useEffect(() => {
@@ -52,27 +169,6 @@ export default function ConfiguratorPageV2() {
       setSelectedStage(1);
     }
   }, [form.fuel_type, selectedStage]);
-
-  const tryAutoDetect = useCallback(() => {
-    if (!form.brand) return;
-    const spec = lookupVehicleSpec(form.brand, form.model, form.engine_code);
-    if (spec) {
-      setForm((prev) => ({
-        ...prev,
-        stock_hp: spec.stockHp, stock_nm: spec.stockNm, fuel_type: spec.fuelType,
-        engine_code: prev.engine_code || spec.engineCode,
-        ecu_type: prev.ecu_type || spec.ecuType || '',
-      }));
-      setAutoDetected(true);
-    } else {
-      setAutoDetected(false);
-    }
-  }, [form.brand, form.model, form.engine_code]);
-
-  useEffect(() => { tryAutoDetect(); }, [tryAutoDetect]);
-  useEffect(() => {
-    setSuggestedModels(form.brand ? getModelsForBrand(form.brand) : []);
-  }, [form.brand]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +179,9 @@ export default function ConfiguratorPageV2() {
       id: `v-${crypto.randomUUID().slice(0, 8)}`,
       created_at: new Date().toISOString(),
       ...form,
+      year: new Date().getFullYear(),
+      engine_code: enginesList.find((e) => e.id === engineId)?.name ?? '',
+      ecu_type: '',
     };
     const result = generateRecommendation(vehicle, selectedStage);
     navigate(`/konfigurator/${result.id}`);
@@ -90,17 +189,15 @@ export default function ConfiguratorPageV2() {
 
   const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (key === 'brand') setAutoDetected(false);
   };
 
   const handleVehicleSearchSelect = useCallback((spec: VehicleSpec) => {
     setForm((prev) => ({
       ...prev,
-      brand: spec.brand, model: spec.model, engine_code: spec.engineCode,
-      ecu_type: spec.ecuType ?? '', stock_hp: spec.stockHp, stock_nm: spec.stockNm,
+      brand: spec.brand, model: spec.model,
+      stock_hp: spec.stockHp, stock_nm: spec.stockNm,
       fuel_type: spec.fuelType,
     }));
-    setSuggestedModels(getModelsForBrand(spec.brand));
     setAutoDetected(true);
   }, []);
 
@@ -143,36 +240,57 @@ export default function ConfiguratorPageV2() {
               <VehicleSearch onSelect={handleVehicleSearchSelect} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* API-driven cascade */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Marke" required>
-                <select value={form.brand} onChange={(e) => updateField('brand', e.target.value)} className="field-input">
-                  <option value="">Marke wählen</option>
-                  {brands.map((b) => <option key={b} value={b}>{b}</option>)}
+                <select
+                  value={brandId ?? ''}
+                  onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : null)}
+                  disabled={brands.length === 0}
+                  className="field-input"
+                >
+                  <option value="">{cascadeLoading === 'brands' ? 'Lädt…' : 'Marke wählen'}</option>
+                  {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </Field>
+              <Field label="Baureihe" required>
+                <select
+                  value={seriesId ?? ''}
+                  onChange={(e) => setSeriesId(e.target.value ? Number(e.target.value) : null)}
+                  disabled={brandId === null || seriesList.length === 0}
+                  className="field-input"
+                >
+                  <option value="">{cascadeLoading === 'series' ? 'Lädt…' : brandId === null ? 'Erst Marke wählen' : 'Baureihe wählen'}</option>
+                  {seriesList.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </Field>
               <Field label="Modell" required>
-                {suggestedModels.length > 0 ? (
-                  <select value={form.model} onChange={(e) => updateField('model', e.target.value)} className="field-input">
-                    <option value="">Modell wählen</option>
-                    {suggestedModels.map((m) => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                ) : (
-                  <input type="text" value={form.model} onChange={(e) => updateField('model', e.target.value)} placeholder="z. B. Golf 8 GTI" className="field-input" />
-                )}
+                <select
+                  value={modelId ?? ''}
+                  onChange={(e) => setModelId(e.target.value ? Number(e.target.value) : null)}
+                  disabled={seriesId === null || modelsList.length === 0}
+                  className="field-input"
+                >
+                  <option value="">{cascadeLoading === 'models' ? 'Lädt…' : seriesId === null ? 'Erst Baureihe wählen' : 'Modell wählen'}</option>
+                  {modelsList.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
               </Field>
-              <Field label="Baujahr">
-                <input type="number" value={form.year} onChange={(e) => updateField('year', Number(e.target.value))} min={2000} max={2026} className="field-input" />
+              <Field label="Motor" required>
+                <select
+                  value={engineId ?? ''}
+                  onChange={(e) => setEngineId(e.target.value ? Number(e.target.value) : null)}
+                  disabled={modelId === null || enginesList.length === 0}
+                  className="field-input"
+                >
+                  <option value="">{cascadeLoading === 'engines' ? 'Lädt…' : modelId === null ? 'Erst Modell wählen' : 'Motor wählen'}</option>
+                  {enginesList.map((eng) => <option key={eng.id} value={eng.id}>{eng.name}</option>)}
+                </select>
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Motorcode">
-                <input type="text" value={form.engine_code} onChange={(e) => updateField('engine_code', e.target.value)} placeholder="z. B. DNUA, B58B30O1" className="field-input font-mono" />
-              </Field>
-              <Field label="ECU-Typ">
-                <input type="text" value={form.ecu_type} onChange={(e) => updateField('ecu_type', e.target.value)} placeholder="z. B. Bosch MG1CS111" className="field-input font-mono" />
-              </Field>
-            </div>
+            {cascadeError && (
+              <div className="text-xs text-destructive">Fehler bei der Fahrzeugdatenbank: {cascadeError}</div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Getriebe">
@@ -188,7 +306,7 @@ export default function ConfiguratorPageV2() {
             </div>
 
             <AnimatePresence>
-              {autoDetected && (
+              {autoDetected && cascadeLoading !== 'details' && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                   className="flex items-center gap-2 p-3 rounded-md border border-destructive/30 bg-destructive/5"
@@ -197,6 +315,15 @@ export default function ConfiguratorPageV2() {
                   <span className="text-xs text-destructive font-medium">
                     Fahrzeugdaten automatisch erkannt – Werte können manuell angepasst werden
                   </span>
+                </motion.div>
+              )}
+              {cascadeLoading === 'details' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-2 p-3 rounded-md border border-border bg-card"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
+                  <span className="text-xs text-muted-foreground">Fahrzeugdaten werden geladen…</span>
                 </motion.div>
               )}
             </AnimatePresence>
