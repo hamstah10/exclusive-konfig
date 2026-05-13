@@ -19,6 +19,7 @@ import DynoBookingPage from "./pages/DynoBookingPage";
 import AnkaufFunnelPage from "./pages/AnkaufFunnelPage";
 import AnkaufDankePage from "./pages/AnkaufDankePage";
 import FinanzierungPage from "./pages/FinanzierungPage";
+import DokumentationPage from "./pages/DokumentationPage";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/ankauf" element={<AnkaufFunnelPage />} />
           <Route path="/ankauf/danke" element={<AnkaufDankePage />} />
           <Route path="/finanzierung" element={<FinanzierungPage />} />
+          <Route path="/dokumentation" element={<DokumentationPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="anfragen" element={<AdminLeadsPage />} />
