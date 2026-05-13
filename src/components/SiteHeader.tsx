@@ -1,20 +1,25 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { useState } from 'react';
-
-const navItems = [
-  { label: 'Start', to: '/#top' },
-  { label: 'Fahrzeugbörse', to: '/#fahrzeuge' },
-  { label: 'Chiptuning', to: '/#chiptuning' },
-  { label: 'Prüfstand', to: '/#pruefstand' },
-  { label: 'Räder & Reifen', to: '/#raeder' },
-  { label: 'Kontakt', to: '/#kontakt' },
-];
+import { useTranslation } from 'react-i18next';
 
 export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'solid' }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const { t, i18n } = useTranslation();
+
+  const navItems = [
+    { label: t('nav.start'), to: '/#top' },
+    { label: t('nav.marketplace'), to: '/#fahrzeuge' },
+    { label: t('nav.chiptuning'), to: '/#chiptuning' },
+    { label: t('nav.dyno'), to: '/#pruefstand' },
+    { label: t('nav.wheels'), to: '/#raeder' },
+    { label: t('nav.contact'), to: '/#kontakt' },
+  ];
+
+  const otherLng = i18n.language?.startsWith('en') ? 'de' : 'en';
+  const switchLang = () => i18n.changeLanguage(otherLng);
 
   const base =
     variant === 'overlay'
@@ -40,17 +45,26 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
               {item.label}
             </a>
           ))}
+          <button
+            type="button"
+            onClick={switchLang}
+            aria-label={t('lang.switchLabel') as string}
+            className="text-xs uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold transition-colors inline-flex items-center gap-1.5"
+          >
+            <Globe className="h-3.5 w-3.5" />
+            {otherLng.toUpperCase()}
+          </button>
           <Link
             to="/konfigurator"
             className="text-xs uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] hover:bg-[hsl(var(--brand-gold))]/90 transition-colors font-semibold"
           >
-            Konfigurator
+            {t('nav.configurator')}
           </Link>
         </nav>
 
         <button
           type="button"
-          aria-label="Menü"
+          aria-label={t('nav.menu') as string}
           onClick={() => setOpen((p) => !p)}
           className="lg:hidden text-white p-1"
         >
@@ -71,12 +85,20 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
                 {item.label}
               </a>
             ))}
+            <button
+              type="button"
+              onClick={() => { switchLang(); setOpen(false); }}
+              className="text-sm uppercase tracking-[0.2em] text-white/80 hover:text-brand-gold py-1 text-left inline-flex items-center gap-2"
+            >
+              <Globe className="h-4 w-4" />
+              {otherLng.toUpperCase()}
+            </button>
             <Link
               to="/konfigurator"
               onClick={() => setOpen(false)}
               className="text-sm uppercase tracking-[0.2em] px-4 py-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] font-semibold text-center mt-2"
             >
-              Konfigurator
+              {t('nav.configurator')}
             </Link>
           </div>
         </div>
