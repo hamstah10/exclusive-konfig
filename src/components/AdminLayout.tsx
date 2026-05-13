@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Wrench, Inbox, LogOut, Loader2, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Wrench, Inbox, LogOut, Loader2, ArrowLeft, Banknote } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -22,6 +22,7 @@ const items = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard, end: true },
   { title: 'Anfragen', url: '/admin/anfragen', icon: Inbox, end: false },
   { title: 'Prüfstand', url: '/admin/pruefstand', icon: Wrench, end: false },
+  { title: 'Ankauf', url: '/admin/ankauf', icon: Banknote, end: false },
 ];
 
 function AdminSidebar() {
