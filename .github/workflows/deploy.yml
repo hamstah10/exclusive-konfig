@@ -47,6 +47,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             pm2 describe ear-chiptuning > /dev/null 2>&1 \
-              || pm2 start "serve -s /home/chiptuningguru1/htdocs/ear.chiptuning.guru -l ${{ secrets.APP_PORT }}" \
+              || pm2 start "serve -s /home/chiptuningguru1/htdocs/ear.chiptuning.guru -l 1122" \
                    --name ear-chiptuning
             pm2 save
