@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Loader2, CheckCircle2, X, Sparkles, Paperclip, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import type { Vehicle } from '@/data/vehicles';
 
 const schema = z.object({
   name: z.string().trim().min(2, 'Name zu kurz').max(120),
@@ -17,8 +16,15 @@ const schema = z.object({
   trade_in: z.boolean(),
 });
 
+export type LeadTargetVehicle = {
+  slug: string;
+  brand: string;
+  model: string;
+  priceLabel?: string;
+};
+
 type Props = {
-  vehicle: Vehicle;
+  vehicle: LeadTargetVehicle;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
