@@ -522,13 +522,13 @@ export default function LandingPage() {
             </StaggerGroup>
 
             <Reveal direction="up" delay={0.3}>
-              <a
-                href="#kontakt"
+              <Link
+                to="/raeder-konfigurator"
                 className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.15em] text-[hsl(var(--brand-dark))] border-b-2 border-[hsl(var(--brand-gold))] pb-1 hover:text-[hsl(var(--brand-gold))] transition-colors"
               >
-                Beratung anfragen
+                Räder konfigurieren
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </Reveal>
           </div>
           <Reveal direction="left" duration={0.9}>
