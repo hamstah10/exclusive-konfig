@@ -53,7 +53,7 @@ export function SiteHeader({ variant = 'overlay' }: { variant?: 'overlay' | 'sol
   return (
     <header className={base}>
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <SiteLogo variant="horizontal" size={scrolled ? 36 : 44} />
+        <SiteLogo size={scrolled ? 'sm' : 'md'} />
 
         <nav className="hidden lg:flex items-center gap-7">
           {navItems.map((item) =>
