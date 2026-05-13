@@ -13,6 +13,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
 import { CountUp } from '@/components/CountUp';
+import { ParallaxImage } from '@/components/Parallax';
 
 const featuredCars = [
   { brand: 'Porsche', model: '911 Turbo S', year: 2022, hp: 650, price: '189.900 €', img: heroCar },
@@ -295,12 +296,19 @@ export default function LandingPage() {
       <section id="chiptuning" className="bg-brand-dark text-white py-24 md:py-32 relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.1 }}
+          whileInView={{ opacity: 0.12 }}
           viewport={{ once: true }}
           transition={{ duration: 1.5 }}
           className="absolute inset-0"
         >
-          <img src={dynoImg} alt="" className="w-full h-full object-cover" loading="lazy" width={1280} height={896} />
+          <ParallaxImage
+            src={dynoImg}
+            alt=""
+            offset={20}
+            width={1280}
+            height={896}
+            className="absolute inset-0"
+          />
         </motion.div>
         <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -344,7 +352,7 @@ export default function LandingPage() {
 
           <StaggerGroup className="grid grid-cols-2 gap-4" stagger={0.1}>
             {stagePackages.map((s) => (
-              <StaggerItem key={s.stage}>
+              <StaggerItem key={s.stage} direction="scale" distance={32}>
                 <motion.div
                   whileHover={{ y: -8, borderColor: 'hsl(var(--brand-gold))' }}
                   transition={{ duration: 0.3 }}
@@ -386,22 +394,21 @@ export default function LandingPage() {
 
           <StaggerGroup className="grid md:grid-cols-3 gap-6" stagger={0.15}>
             {featuredCars.map((car) => (
-              <StaggerItem key={car.model}>
+              <StaggerItem key={car.model} direction="scale" distance={40}>
                 <motion.article
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.3 }}
                   className="group bg-card border border-border overflow-hidden hover:border-[hsl(var(--brand-gold))] hover:shadow-xl hover:shadow-[hsl(var(--brand-dark))]/10 transition-colors h-full"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    <img
-                      src={car.img}
-                      alt={`${car.brand} ${car.model}`}
-                      loading="lazy"
-                      width={1280}
-                      height={896}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1200ms] ease-out"
-                    />
-                  </div>
+                  <ParallaxImage
+                    src={car.img}
+                    alt={`${car.brand} ${car.model}`}
+                    offset={12}
+                    width={1280}
+                    height={896}
+                    className="aspect-[4/3] bg-muted"
+                    imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1200ms] ease-out"
+                  />
                   <div className="p-6">
                     <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">{car.brand}</div>
                     <h3 className="font-display text-2xl mb-3">{car.model}</h3>
@@ -437,13 +444,13 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               className="aspect-[4/3] overflow-hidden border border-border"
             >
-              <img
+              <ParallaxImage
                 src={dynoImg}
                 alt="Allrad-Leistungsprüfstand"
-                loading="lazy"
+                offset={18}
                 width={1280}
                 height={896}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </motion.div>
           </Reveal>
@@ -535,7 +542,14 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               className="aspect-[4/3] overflow-hidden border border-border"
             >
-              <img src={wheelsImg} alt="Premium Felgen" loading="lazy" width={1280} height={896} className="w-full h-full object-cover" />
+              <ParallaxImage
+                src={wheelsImg}
+                alt="Premium Felgen"
+                offset={18}
+                width={1280}
+                height={896}
+                className="w-full h-full"
+              />
             </motion.div>
           </Reveal>
         </div>
