@@ -253,7 +253,7 @@ export default function ConfiguratorResultPageV2() {
               {compareMode ? 'Einzelansicht' : 'Vergleichsmodus'}
             </button>
           </div>
-          <div className="h-64">
+          <div key={`chart-${activeStage}-${compareMode}`} className="h-64 animate-fade-in">
             <ResponsiveContainer width="100%" height="100%">
               {compareMode ? (
                 <LineChart data={mergedCompareData(stages)}>
@@ -280,8 +280,8 @@ export default function ConfiguratorResultPageV2() {
                   <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '4px', fontSize: '12px' }} labelFormatter={(rpm) => `${rpm} RPM`} />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line type="monotone" dataKey="power" name="PS" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-gold))'} strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="torque" name="Nm" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-dark))'} strokeWidth={2} dot={false} strokeDasharray={activeStage === ECO_STAGE_ID ? '4 2' : undefined} />
+                  <Line type="monotone" dataKey="power" name="PS" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-gold))'} strokeWidth={2} dot={false} isAnimationActive animationDuration={700} animationEasing="ease-out" />
+                  <Line type="monotone" dataKey="torque" name="Nm" stroke={activeStage === ECO_STAGE_ID ? 'hsl(var(--success))' : 'hsl(var(--brand-dark))'} strokeWidth={2} dot={false} strokeDasharray={activeStage === ECO_STAGE_ID ? '4 2' : undefined} isAnimationActive animationDuration={700} animationEasing="ease-out" />
                 </LineChart>
               )}
             </ResponsiveContainer>
