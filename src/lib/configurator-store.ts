@@ -89,6 +89,30 @@ export interface ConfiguratorResult {
     recommendation: Recommendation;
     dynoPoints: DynoDataPoint[];
   }[];
+  apiData?: ConfiguratorApiData;
+}
+
+export interface ApiTuningOption {
+  id: number;
+  name: string;
+  iconUrl?: string;
+  price?: number;
+  description?: string;
+}
+
+export interface ConfiguratorApiData {
+  ecuName?: string;
+  ecuManufacturer?: string;
+  ecuManufacturerLogoUrl?: string;
+  tuningOptions: ApiTuningOption[];
+}
+
+export const FAHRZEUGDB_ASSET_BASE = 'https://verwaltung.tuningfux.de';
+
+export function buildAssetUrl(path?: string | null): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${FAHRZEUGDB_ASSET_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
 // In-memory store (simulates API persistence)
@@ -134,7 +158,11 @@ export function generateDynoCurve(
 }
 
 // Simulates AI recommendation generation for all stages
-export function generateRecommendation(vehicle: Vehicle, selectedStage: number = 1): ConfiguratorResult {
+export function generateRecommendation(
+  vehicle: Vehicle,
+  selectedStage: number = 1,
+  apiData?: ConfiguratorApiData,
+): ConfiguratorResult {
   const id = crypto.randomUUID();
 
   const stages = stageConfigs.map((cfg) => {
@@ -173,6 +201,7 @@ export function generateRecommendation(vehicle: Vehicle, selectedStage: number =
     vehicle,
     selectedStage,
     stages,
+    apiData,
   };
 
   saveResult(result);
