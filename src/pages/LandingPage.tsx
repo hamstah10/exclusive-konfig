@@ -449,18 +449,16 @@ export default function LandingPage() {
             </motion.div>
           </Reveal>
           <div className="order-1 lg:order-2">
-            <SectionEyebrow>Leistungsprüfstand</SectionEyebrow>
+            <SectionEyebrow>{t('dyno.eyebrow')}</SectionEyebrow>
             <Reveal direction="up" delay={0.1}>
               <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
-                4WD-Allrad-Dyno.<br />
-                <span className="italic text-[hsl(var(--brand-gold))]">Daten lügen nicht.</span>
+                {t('dyno.titleA')}<br />
+                <span className="italic text-[hsl(var(--brand-gold))]">{t('dyno.titleB')}</span>
               </h2>
             </Reveal>
             <Reveal direction="up" delay={0.2}>
               <p className="text-muted-foreground text-base leading-relaxed mb-8">
-                Auf unserem hochpräzisen Leistungsprüfstand vermessen wir Front-, Heck- und
-                Allradfahrzeuge bis 1.200 PS. Du bekommst ein offizielles Diagramm mit
-                PS-, Drehmoment- und Lambda-Verlauf – perfekt vor und nach jeder Optimierung.
+                {t('dyno.intro')}
               </p>
             </Reveal>
 
@@ -484,7 +482,7 @@ export default function LandingPage() {
                 to="/pruefstand-buchung"
                 className="group inline-flex items-center gap-2 border-2 border-[hsl(var(--brand-dark))] text-[hsl(var(--brand-dark))] px-7 py-3.5 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))] hover:text-white transition-all"
               >
-                Termin buchen
+                {t('dyno.cta')}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Reveal>
@@ -496,25 +494,24 @@ export default function LandingPage() {
       <section id="raeder" className="py-24 md:py-32">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <SectionEyebrow>Räder &amp; Reifen</SectionEyebrow>
+            <SectionEyebrow>{t('wheels.eyebrow')}</SectionEyebrow>
             <Reveal direction="up" delay={0.1}>
               <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
-                Der perfekte <span className="italic text-[hsl(var(--brand-gold))]">Auftritt.</span>
+                {t('wheels.titleA')} <span className="italic text-[hsl(var(--brand-gold))]">{t('wheels.titleB')}</span>
               </h2>
             </Reveal>
             <Reveal direction="up" delay={0.2}>
               <p className="text-muted-foreground text-base leading-relaxed mb-6">
-                Vom OEM-Plus-Rad bis zur Schmiedefelge – wir liefern, montieren und tragen ein.
-                Reifenwechsel, Auswuchten und Einlagerung gehören selbstverständlich dazu.
+                {t('wheels.intro')}
               </p>
             </Reveal>
 
             <StaggerGroup className="space-y-3 mb-8" stagger={0.08}>
-              {['Premium-Marken & Eigenfertigung', 'Eintragung & TÜV-Abnahme inklusive', 'Saisonale Einlagerung möglich'].map((t) => (
-                <StaggerItem key={t} distance={12}>
+              {wheelPoints.map((point) => (
+                <StaggerItem key={point} distance={12}>
                   <li className="flex items-start gap-3 text-sm list-none">
                     <Sparkles className="h-4 w-4 text-[hsl(var(--brand-gold))] shrink-0 mt-0.5" />
-                    {t}
+                    {point}
                   </li>
                 </StaggerItem>
               ))}
@@ -525,7 +522,7 @@ export default function LandingPage() {
                 to="/raeder-konfigurator"
                 className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.15em] text-[hsl(var(--brand-dark))] border-b-2 border-[hsl(var(--brand-gold))] pb-1 hover:text-[hsl(var(--brand-gold))] transition-colors"
               >
-                Räder konfigurieren
+                {t('wheels.cta')}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Reveal>
@@ -565,12 +562,12 @@ export default function LandingPage() {
           </Reveal>
           <Reveal direction="up" delay={0.1}>
             <h2 className="font-display text-4xl md:text-5xl mb-5 leading-tight">
-              Bereit für <span className="italic text-brand-gold">mehr Power?</span>
+              {t('ctaBanner.titleA')} <span className="italic text-brand-gold">{t('ctaBanner.titleB')}</span>
             </h2>
           </Reveal>
           <Reveal direction="up" delay={0.2}>
             <p className="text-white/75 text-lg max-w-2xl mx-auto mb-10">
-              Konfiguriere dein Tuning in unter 60 Sekunden und sieh sofort, was in deinem Fahrzeug steckt.
+              {t('ctaBanner.text')}
             </p>
           </Reveal>
           <Reveal direction="up" delay={0.3}>
@@ -579,7 +576,7 @@ export default function LandingPage() {
               className="group inline-flex items-center gap-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] px-8 py-4 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-gold))]/90 transition-all hover:shadow-2xl hover:shadow-[hsl(var(--brand-gold))]/40 hover:-translate-y-0.5"
             >
               <Sparkles className="h-4 w-4" />
-              Konfigurator starten
+              {t('ctaBanner.cta')}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Reveal>
