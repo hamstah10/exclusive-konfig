@@ -46,6 +46,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            export PATH=~/.npm-global/bin:$PATH
             pm2 describe ear-chiptuning > /dev/null 2>&1 \
               || pm2 start "serve -s /home/chiptuningguru1/htdocs/ear.chiptuning.guru -l 1122" \
                    --name ear-chiptuning
