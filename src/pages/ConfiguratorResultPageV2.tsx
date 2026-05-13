@@ -7,7 +7,7 @@ import {
 import { Leaf, ChevronRight, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
 import { BrandLogo } from '@/components/BrandLogo';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
