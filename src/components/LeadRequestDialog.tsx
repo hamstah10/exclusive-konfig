@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Loader2, CheckCircle2, X, Sparkles, Paperclip, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import type { Vehicle } from '@/data/vehicles';
 
 const schema = z.object({
   name: z.string().trim().min(2, 'Name zu kurz').max(120),
@@ -17,8 +16,17 @@ const schema = z.object({
   trade_in: z.boolean(),
 });
 
+export type LeadTargetVehicle = {
+  slug: string;
+  brand: string;
+  model: string;
+  priceLabel?: string;
+  /** Optional override of the lead label (e.g. "BMW M340i · Stage 2"). */
+  label?: string;
+};
+
 type Props = {
-  vehicle: Vehicle;
+  vehicle: LeadTargetVehicle;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -131,7 +139,7 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
       user_id: user?.id ?? null,
       vehicle_slug: vehicle.slug,
       vehicle_id: vehicle.slug,
-      vehicle_label: `${vehicle.brand} ${vehicle.model}`,
+      vehicle_label: vehicle.label ?? `${vehicle.brand} ${vehicle.model}`,
       name: parsed.data.name,
       email: parsed.data.email,
       phone: parsed.data.phone || null,
@@ -207,7 +215,9 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
             <h2 id="lead-dialog-title" className="font-display text-2xl mt-1">
               {vehicle.brand} <span className="italic">{vehicle.model}</span>
             </h2>
-            <div className="text-sm text-muted-foreground mt-1">{vehicle.priceLabel}</div>
+            {vehicle.priceLabel && (
+              <div className="text-sm text-muted-foreground mt-1">{vehicle.priceLabel}</div>
+            )}
           </div>
           <button
             type="button"
