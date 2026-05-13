@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tuning Configurator</title>
+    <meta name="description" content="Fahrzeugspezifische Tuning-Empfehlungen für Stage 1, 2 und 3 – sofort generiert.">
+    <meta name="author" content="TuningFux" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tuning Configurator">
+    <meta property="og:description" content="Fahrzeugspezifische Tuning-Empfehlungen für Stage 1, 2 und 3 – sofort generiert.">
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tuning Configurator">
+    <meta name="twitter:description" content="Fahrzeugspezifische Tuning-Empfehlungen für Stage 1, 2 und 3 – sofort generiert.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          if (stored === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
