@@ -3,7 +3,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import {
   Car, Settings2, Gauge, CircleDot, Wallet, ShoppingCart,
-  UserCircle, ShieldCheck, Globe, Sparkles, Type, Palette, MoveRight, Layers,
+  UserCircle, ShieldCheck, Globe, Sparkles, Type, Palette, MoveRight, Layers, Plug,
 } from 'lucide-react';
 import brandLogo from '@/assets/exclusive-automobile-ruegen-logo.png';
 
@@ -163,6 +163,21 @@ const sections: Section[] = [
       'Ankauf-Leads mit Filter und Status-Update',
     ],
   },
+  {
+    id: 'api',
+    eyebrow: 'Integration',
+    title: 'Fahrzeugdatenbank-API',
+    intro:
+      'Anbindung an die externe Fahrzeugdatenbank (verwaltung.tuningfux.de) über eine eigene Edge Function. Bearer-Token und X-Token-Id werden als Server-Secrets gehalten und nie an den Browser ausgeliefert.',
+    icon: Plug,
+    screenshot: '/docs/admin.png',
+    features: [
+      'Edge Function `fahrzeugdatenbank` als Proxy mit Pfad-Allowlist',
+      'Secrets `FAHRZEUGDB_API_TOKEN` & `FAHRZEUGDB_TOKEN_ID` im Backend',
+      'Frontend-Helper `src/lib/fahrzeugdatenbank-api.ts` mit typisierten Funktionen',
+      'Endpunkte: types, brands, series, models, engines, engine-details, track',
+    ],
+  },
 ];
 
 const platformFeatures = [
@@ -279,6 +294,84 @@ export default function DokumentationPage() {
           </article>
         ))}
       </div>
+
+      {/* API-Referenz */}
+      <section className="bg-secondary border-y border-border py-20">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
+            <span className="text-xs uppercase tracking-[0.3em] text-[hsl(var(--brand-gold))]">
+              API-Referenz
+            </span>
+          </div>
+          <h2 className="font-display text-3xl md:text-4xl mb-4">
+            Fahrzeugdatenbank-<em className="italic text-[hsl(var(--brand-gold))]">Endpunkte</em>
+          </h2>
+          <p className="text-muted-foreground max-w-3xl leading-relaxed mb-10">
+            Alle Aufrufe laufen über die Edge Function{' '}
+            <code className="bg-card px-1.5 py-0.5 rounded text-xs">/functions/v1/fahrzeugdatenbank</code>.
+            Die Edge Function ergänzt serverseitig den Bearer-Token sowie den{' '}
+            <code className="bg-card px-1.5 py-0.5 rounded text-xs">X-Token-Id</code>-Header und proxyt
+            an <code className="bg-card px-1.5 py-0.5 rounded text-xs">verwaltung.tuningfux.de/api/fahrzeugdatenbank</code>.
+          </p>
+
+          <div className="overflow-hidden border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr className="text-left">
+                  <th className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold w-20">Methode</th>
+                  <th className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">Pfad</th>
+                  <th className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">Zweck</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border font-mono text-xs">
+                {[
+                  { m: 'GET', p: '/types', d: 'Fahrzeugtypen (PKW, LKW, Motorrad, …)' },
+                  { m: 'GET', p: '/brands/{typeId}', d: 'Marken zum gewählten Typ' },
+                  { m: 'GET', p: '/series/{brandId}', d: 'Baureihen zur Marke' },
+                  { m: 'GET', p: '/models/{seriesId}', d: 'Modelle zur Baureihe' },
+                  { m: 'GET', p: '/engines/{modelId}', d: 'Motorisierungen zum Modell' },
+                  { m: 'GET', p: '/engine-details/{engineId}', d: 'Stages, ECUs, Getriebe & Settings (Query: stageId, templateVariant)' },
+                  { m: 'POST', p: '/track', d: 'Telemetrie-Event protokollieren' },
+                ].map((r) => (
+                  <tr key={r.p}>
+                    <td className="px-4 py-3 align-top">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
+                        r.m === 'GET'
+                          ? 'bg-[hsl(var(--brand-gold))]/15 text-[hsl(var(--brand-gold))]'
+                          : 'bg-[hsl(var(--brand-dark))]/10 text-[hsl(var(--brand-dark))]'
+                      }`}>{r.m}</span>
+                    </td>
+                    <td className="px-4 py-3 align-top text-foreground">{r.p}</td>
+                    <td className="px-4 py-3 align-top text-muted-foreground font-sans">{r.d}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 mt-8">
+            <div className="border border-border bg-card p-5">
+              <h3 className="text-xs uppercase tracking-[0.25em] text-[hsl(var(--brand-gold))] mb-3">Sicherheit</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Token & Token-ID liegen ausschließlich als Backend-Secrets
+                (<code className="text-xs">FAHRZEUGDB_API_TOKEN</code>,{' '}
+                <code className="text-xs">FAHRZEUGDB_TOKEN_ID</code>). Eine Pfad-Allowlist verhindert,
+                dass die Edge Function als offener Proxy missbraucht wird.
+              </p>
+            </div>
+            <div className="border border-border bg-card p-5">
+              <h3 className="text-xs uppercase tracking-[0.25em] text-[hsl(var(--brand-gold))] mb-3">Frontend-Nutzung</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Über <code className="text-xs">src/lib/fahrzeugdatenbank-api.ts</code> stehen typisierte
+                Helper bereit: <code className="text-xs">fetchTypes()</code>,{' '}
+                <code className="text-xs">fetchBrands(id)</code>, …,{' '}
+                <code className="text-xs">fetchEngineDetails(id)</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Brand-Refresh Logo */}
       <section className="bg-[hsl(var(--brand-dark))] py-20 md:py-28 mt-16">
