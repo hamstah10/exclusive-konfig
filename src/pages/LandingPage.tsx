@@ -240,22 +240,19 @@ export default function LandingPage() {
       <section id="willkommen" className="py-24 md:py-32">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <SectionEyebrow>Willkommen</SectionEyebrow>
+            <SectionEyebrow>{t('intro.eyebrow')}</SectionEyebrow>
             <Reveal direction="up" delay={0.1}>
               <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
-                Vorstellungen werden{' '}
-                <span className="italic text-[hsl(var(--brand-gold))]">zur Realität.</span>
+                {t('intro.titleA')}{' '}
+                <span className="italic text-[hsl(var(--brand-gold))]">{t('intro.titleB')}</span>
               </h2>
             </Reveal>
             <Reveal direction="up" delay={0.2}>
               <p className="text-muted-foreground text-base leading-relaxed mb-4">
-                Ob exklusive Fahrzeuge, mehr Power für deinen Alltagswagen oder die professionelle
-                Vermessung auf unserem 4WD-Leistungsprüfstand – bei exclusiv Automobile Rügen
-                bekommst du alles aus einer Hand.
+                {t('intro.text1')}
               </p>
               <p className="text-muted-foreground text-base leading-relaxed mb-8">
-                Wir arbeiten ehrlich, transparent und mit Leidenschaft. Jede Optimierung ist
-                individuell auf dein Fahrzeug abgestimmt – nicht von der Stange.
+                {t('intro.text2')}
               </p>
             </Reveal>
             <Reveal direction="up" delay={0.3}>
@@ -263,7 +260,7 @@ export default function LandingPage() {
                 href="#chiptuning"
                 className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.15em] text-[hsl(var(--brand-dark))] border-b-2 border-[hsl(var(--brand-gold))] pb-1 hover:text-[hsl(var(--brand-gold))] transition-colors"
               >
-                Mehr erfahren <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                {t('intro.cta')} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </Reveal>
           </div>
@@ -312,18 +309,16 @@ export default function LandingPage() {
         </motion.div>
         <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <SectionEyebrow dark>Chiptuning</SectionEyebrow>
+            <SectionEyebrow dark>{t('chiptuning.eyebrow')}</SectionEyebrow>
             <Reveal direction="up" delay={0.1}>
               <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
-                Mehr Power.<br />
-                <span className="italic text-brand-gold">Weniger Verbrauch.</span>
+                {t('chiptuning.titleA')}<br />
+                <span className="italic text-brand-gold">{t('chiptuning.titleB')}</span>
               </h2>
             </Reveal>
             <Reveal direction="up" delay={0.2}>
               <p className="text-white/75 text-base leading-relaxed mb-8 max-w-lg">
-                Optimierung sämtlicher Fahrzeugmodelle bei OptimaTuning Germany auf der Insel Rügen.
-                Wähle dein Fahrzeug, deine Stage und sieh sofort eine fahrzeugspezifische
-                Leistungsprognose – inklusive Dyno-Kurve und transparenter Preise.
+                {t('chiptuning.intro')}
               </p>
             </Reveal>
 
