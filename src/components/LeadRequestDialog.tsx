@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Loader2, CheckCircle2, X, Sparkles } from 'lucide-react';
+import { Loader2, CheckCircle2, X, Sparkles, Paperclip, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Vehicle } from '@/data/vehicles';
@@ -30,10 +30,16 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
   const [success, setSuccess] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+
+  const MAX_FILES = 5;
+  const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+  const ACCEPTED = '.pdf,.jpg,.jpeg,.png,.webp,.heic,.doc,.docx';
 
   useEffect(() => {
     if (!open) {
       setSuccess(false);
+      setFiles([]);
       return;
     }
     if (user) {
@@ -59,6 +65,24 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
 
   if (!open) return null;
 
+  const handleFiles = (incoming: FileList | null) => {
+    if (!incoming) return;
+    const next: File[] = [...files];
+    for (const f of Array.from(incoming)) {
+      if (next.length >= MAX_FILES) {
+        toast.error(`Maximal ${MAX_FILES} Dateien.`);
+        break;
+      }
+      if (f.size > MAX_SIZE) {
+        toast.error(`${f.name} ist größer als 10 MB.`);
+        continue;
+      }
+      if (next.some((x) => x.name === f.name && x.size === f.size)) continue;
+      next.push(f);
+    }
+    setFiles(next);
+  };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
@@ -77,7 +101,9 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
     }
 
     setLoading(true);
-    const { error } = await supabase.from('leads').insert({
+    const { data: leadRow, error } = await supabase
+      .from('leads')
+      .insert({
       user_id: user?.id ?? null,
       vehicle_slug: vehicle.slug,
       vehicle_id: vehicle.slug,
@@ -89,15 +115,51 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
       financing: parsed.data.financing,
       trade_in: parsed.data.trade_in,
       preferred_contact: parsed.data.preferred_contact,
-    });
-    setLoading(false);
+      })
+      .select('id')
+      .single();
 
     if (error) {
+      setLoading(false);
       console.error(error);
       toast.error('Anfrage konnte nicht gesendet werden. Bitte erneut versuchen.');
       return;
     }
 
+    // Upload attachments (best-effort)
+    if (files.length > 0 && leadRow) {
+      const folder = user?.id ?? 'anonymous';
+      let failed = 0;
+      for (const file of files) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${folder}/${leadRow.id}/${Date.now()}-${safeName}`;
+        const up = await supabase.storage
+          .from('lead-attachments')
+          .upload(path, file, { contentType: file.type || 'application/octet-stream' });
+        if (up.error) {
+          console.error(up.error);
+          failed++;
+          continue;
+        }
+        const meta = await supabase.from('lead_attachments').insert({
+          lead_id: leadRow.id,
+          user_id: user?.id ?? null,
+          file_path: path,
+          file_name: file.name,
+          mime_type: file.type || null,
+          size_bytes: file.size,
+        });
+        if (meta.error) {
+          console.error(meta.error);
+          failed++;
+        }
+      }
+      if (failed > 0) {
+        toast.warning(`${failed} Datei(en) konnten nicht hochgeladen werden.`);
+      }
+    }
+
+    setLoading(false);
     setSuccess(true);
     toast.success('Anfrage gesendet — wir melden uns in Kürze.');
   };
@@ -210,6 +272,54 @@ export function LeadRequestDialog({ vehicle, open, onOpenChange }: Props) {
             <div className="flex flex-wrap gap-5">
               <Checkbox name="financing" label="Finanzierung gewünscht" />
               <Checkbox name="trade_in" label="Inzahlungnahme" />
+            </div>
+
+            <div>
+              <label className="text-xs uppercase tracking-[0.15em] text-muted-foreground">
+                Anhänge (optional)
+              </label>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Fahrzeugunterlagen, Bilder etc. · max. {MAX_FILES} Dateien · je bis 10 MB
+                {!user && ' · Hinweis: Anhänge sind nur für unser Team einsehbar, nicht im Portal sichtbar (ohne Konto)'}
+              </p>
+              <label className="mt-2 flex items-center justify-center gap-2 border-2 border-dashed border-border hover:border-[hsl(var(--brand-gold))] cursor-pointer px-4 py-4 text-sm transition-colors">
+                <Paperclip className="h-4 w-4" />
+                Dateien auswählen
+                <input
+                  type="file"
+                  multiple
+                  accept={ACCEPTED}
+                  className="hidden"
+                  onChange={(e) => {
+                    handleFiles(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+              {files.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {files.map((f, idx) => (
+                    <li
+                      key={`${f.name}-${idx}`}
+                      className="flex items-center gap-3 bg-secondary border border-border px-3 py-2 text-sm"
+                    >
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="flex-1 truncate">{f.name}</span>
+                      <span className="text-xs text-muted-foreground flex-shrink-0">
+                        {(f.size / 1024).toFixed(0)} KB
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setFiles(files.filter((_, i) => i !== idx))}
+                        aria-label={`${f.name} entfernen`}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <button
