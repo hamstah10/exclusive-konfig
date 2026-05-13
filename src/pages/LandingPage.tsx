@@ -198,6 +198,37 @@ function SectionEyebrow({ children, dark = false }: { children: React.ReactNode;
 }
 
 export default function LandingPage() {
+  const { t } = useTranslation();
+
+  const features = [
+    { icon: <Award className="h-6 w-6" />, title: t('features.certifiedTitle'), text: t('features.certifiedText') },
+    { icon: <ShieldCheck className="h-6 w-6" />, title: t('features.tuvTitle'), text: t('features.tuvText') },
+    { icon: <Cpu className="h-6 w-6" />, title: t('features.ecuTitle'), text: t('features.ecuText') },
+    { icon: <Phone className="h-6 w-6" />, title: t('features.consultingTitle'), text: t('features.consultingText') },
+  ];
+
+  const tuningPoints = t('chiptuning.points', { returnObjects: true }) as string[];
+
+  const stagePackages = (['stage1', 'stage2', 'eco', 'options'] as const).map((k) => ({
+    stage: t(`chiptuning.packages.${k}.name`),
+    delta: t(`chiptuning.packages.${k}.delta`),
+    desc: t(`chiptuning.packages.${k}.desc`),
+    from: t(`chiptuning.packages.${k}.from`),
+  }));
+
+  const dynoIcons = [
+    <Activity className="h-5 w-5" />,
+    <LineChartIcon className="h-5 w-5" />,
+    <Gauge className="h-5 w-5" />,
+    <Wrench className="h-5 w-5" />,
+  ];
+  const dynoFeatures = (t('dyno.features', { returnObjects: true }) as string[]).map((label, i) => ({
+    icon: dynoIcons[i],
+    label,
+  }));
+
+  const wheelPoints = t('wheels.points', { returnObjects: true }) as string[];
+
   return (
     <div id="top" className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <ScrollProgress />
