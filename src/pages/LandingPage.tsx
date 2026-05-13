@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowRight, Gauge, Wrench, Car, Activity, ShieldCheck, Sparkles,
   Cpu, LineChart as LineChartIcon, Award, Phone, ChevronDown,
+  Banknote, Calculator, CheckCircle2, Mic,
 } from 'lucide-react';
 import heroCar from '@/assets/hero-car.jpg';
 import dynoImg from '@/assets/dyno.jpg';
@@ -542,6 +543,158 @@ export default function LandingPage() {
                 className="w-full h-full"
               />
             </motion.div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ANKAUF */}
+      <section id="ankauf" className="py-24 md:py-32 bg-secondary">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <SectionEyebrow>Fahrzeug-Ankauf</SectionEyebrow>
+            <Reveal direction="up" delay={0.1}>
+              <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
+                Verkaufen Sie Ihr Fahrzeug — <span className="italic text-[hsl(var(--brand-gold))]">fair & in Minuten</span>
+              </h2>
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-muted-foreground text-base leading-relaxed mb-8">
+                Sprechen Sie einfach mit unserer KI-Assistentin oder füllen Sie den Funnel selbst aus.
+                Sie erhalten eine sofortige, marktgerechte Bewertung und ein verbindliches Angebot
+                innerhalb von 24 Stunden.
+              </p>
+            </Reveal>
+
+            <StaggerGroup className="space-y-3 mb-8" stagger={0.08}>
+              {[
+                'Sofortbewertung in unter 5 Minuten',
+                'Sprach-Assistent füllt den Funnel für Sie aus',
+                'Faire Preise dank KI-gestützter Marktanalyse',
+                'Persönliche Übergabe vor Ort auf Rügen',
+              ].map((point) => (
+                <StaggerItem key={point} distance={12}>
+                  <li className="flex items-start gap-3 text-sm list-none">
+                    <CheckCircle2 className="h-4 w-4 text-[hsl(var(--brand-gold))] shrink-0 mt-0.5" />
+                    {point}
+                  </li>
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+
+            <Reveal direction="up" delay={0.3}>
+              <div className="flex flex-wrap gap-4 items-center">
+                <Link
+                  to="/ankauf"
+                  className="group inline-flex items-center gap-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] px-6 py-3 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-gold))]/90 transition-all hover:-translate-y-0.5"
+                >
+                  Jetzt bewerten lassen
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  <Mic className="h-4 w-4 text-[hsl(var(--brand-gold))]" />
+                  oder per Sprach-Assistent
+                </span>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal direction="right" duration={0.9}>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-[hsl(var(--brand-gold))]/10 blur-2xl rounded-full" aria-hidden />
+              <div className="relative grid grid-cols-2 gap-4">
+                {[
+                  { kpi: '5 Min', label: 'Bewertung' },
+                  { kpi: '24 h', label: 'Angebot' },
+                  { kpi: 'KI', label: 'Marktdaten' },
+                  { kpi: '0 €', label: 'Kosten für Sie' },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="bg-background border border-border p-6 hover:border-[hsl(var(--brand-gold))]/40 transition-colors"
+                  >
+                    <div className="font-display text-3xl text-[hsl(var(--brand-gold))] mb-1">
+                      {item.kpi}
+                    </div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      {item.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FINANZIERUNG */}
+      <section id="finanzierung" className="py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-3xl mb-14">
+            <SectionEyebrow>Finanzierung</SectionEyebrow>
+            <Reveal direction="up" delay={0.1}>
+              <h2 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
+                Drei Wege zu Ihrem <span className="italic text-[hsl(var(--brand-gold))]">Traumwagen</span>
+              </h2>
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-muted-foreground text-base leading-relaxed">
+                Berechnen Sie Ihre Wunschrate online — Leasing, klassische Ratenfinanzierung oder
+                3-Wege-Finanzierung mit Schlussrate. Wir vermitteln über unsere Bankpartner zu
+                attraktiven Konditionen.
+              </p>
+            </Reveal>
+          </div>
+
+          <StaggerGroup className="grid md:grid-cols-3 gap-6 mb-12" stagger={0.1}>
+            {[
+              {
+                icon: Car,
+                title: 'Leasing',
+                text: 'Niedrige Rate, planbare Kosten. Privat oder gewerblich mit voller MwSt.-Abzugsfähigkeit.',
+                rate: 'ab 299 €/Monat',
+              },
+              {
+                icon: Banknote,
+                title: 'Basis-Finanzierung',
+                text: 'Klassische Ratenfinanzierung. Nach der letzten Rate gehört das Fahrzeug Ihnen.',
+                rate: 'ab 0,99 % eff. p.a.',
+              },
+              {
+                icon: Calculator,
+                title: 'Ziel-Finanzierung',
+                text: 'Niedrige Monatsrate dank Schlussrate. Behalten, tauschen oder zurückgeben.',
+                rate: '3 Wege am Laufzeitende',
+              },
+            ].map((card) => (
+              <StaggerItem key={card.title}>
+                <div className="group h-full bg-background border border-border p-8 hover:border-[hsl(var(--brand-gold))]/50 hover:-translate-y-1 transition-all">
+                  <div className="h-12 w-12 rounded-md bg-[hsl(var(--brand-gold))]/10 flex items-center justify-center mb-5">
+                    <card.icon className="h-6 w-6 text-[hsl(var(--brand-gold))]" />
+                  </div>
+                  <h3 className="font-display text-2xl mb-2">{card.title}</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[hsl(var(--brand-gold))] mb-4">
+                    {card.rate}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{card.text}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+
+          <Reveal direction="up" delay={0.3}>
+            <div className="flex flex-wrap gap-4 items-center">
+              <Link
+                to="/finanzierung"
+                className="group inline-flex items-center gap-2 bg-[hsl(var(--brand-dark))] text-white px-8 py-4 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-dark))]/90 transition-all hover:-translate-y-0.5"
+              >
+                <Calculator className="h-4 w-4" />
+                Rate berechnen
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Unverbindlich · in unter 60 Sekunden
+              </span>
+            </div>
           </Reveal>
         </div>
       </section>
