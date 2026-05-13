@@ -54,6 +54,7 @@ export function SiteFooter() {
             <li><a href="#pruefstand" className="hover:text-brand-gold transition-colors">{t('footer.services.dyno')}</a></li>
             <li><a href="#raeder" className="hover:text-brand-gold transition-colors">{t('footer.services.wheels')}</a></li>
             <li><a href="#finanzierung" className="hover:text-brand-gold transition-colors">{t('footer.services.financing')}</a></li>
+            <li><Link to="/dokumentation" className="hover:text-brand-gold transition-colors">Dokumentation</Link></li>
           </ul>
         </div>
       </div>
