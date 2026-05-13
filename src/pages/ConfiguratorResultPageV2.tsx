@@ -7,7 +7,7 @@ import {
 import { Leaf, ChevronRight, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
 import { BrandLogo } from '@/components/BrandLogo';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
@@ -180,14 +180,16 @@ export default function ConfiguratorResultPageV2() {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <StatCard icon={<Gauge className="h-4 w-4" />} label="Prognose PS" value={`${rec.estimated_hp} PS`} sub={`+${rec.delta_hp} PS`} />
-          <StatCard icon={<Zap className="h-4 w-4" />} label="Prognose Nm" value={`${rec.estimated_nm} Nm`} sub={`+${rec.delta_nm} Nm`} />
+          <StatCard icon={<Gauge className="h-4 w-4" />} label="Prognose PS" value={<><CountUp value={rec.estimated_hp} /> PS</>} sub={<>+<CountUp value={rec.delta_hp} /> PS</>} />
+          <StatCard icon={<Zap className="h-4 w-4" />} label="Prognose Nm" value={<><CountUp value={rec.estimated_nm} /> Nm</>} sub={<>+<CountUp value={rec.delta_nm} /> Nm</>} />
           <StatCard icon={<Layers className="h-4 w-4" />} label="Stage" value={activeStage === ECO_STAGE_ID ? 'Eco' : `Stage ${activeStage}`} sub={rec.stage_label.split(' – ')[1]} />
           <div className="bg-card border border-border rounded-md p-4 relative">
             <div className="flex items-center gap-1.5 mb-2 text-muted-foreground">
               <Euro className="h-4 w-4" /><span className="text-[10px] uppercase tracking-wider font-medium">Gesamtpreis</span>
             </div>
-            <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</p>
+            <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>
+              <CountUp value={stageTotal} format={formatPrice} />
+            </p>
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -373,7 +375,7 @@ export default function ConfiguratorResultPageV2() {
 
 function StatCard({
   icon, label, value, sub, valueClass,
-}: { icon: React.ReactNode; label: string; value: string; sub?: string; valueClass?: string }) {
+}: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: React.ReactNode; valueClass?: string }) {
   return (
     <div className="bg-card border border-border rounded-md p-4">
       <div className="flex items-center gap-1.5 mb-2 text-muted-foreground">
@@ -383,4 +385,36 @@ function StatCard({
       {sub && <p className="text-xs text-destructive font-semibold mt-0.5">{sub}</p>}
     </div>
   );
+}
+
+function CountUp({ value, format, duration = 700 }: { value: number; format?: (n: number) => string; duration?: number }) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    if (from === to) return;
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = from + (to - from) * eased;
+      setDisplay(current);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        fromRef.current = to;
+      }
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      fromRef.current = to;
+    };
+  }, [value, duration]);
+
+  const rounded = Math.round(display);
+  return <>{format ? format(rounded) : rounded.toLocaleString('de-DE')}</>;
 }
