@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRight, Gauge, Wrench, Car, Activity, ShieldCheck, Sparkles,
   Cpu, LineChart as LineChartIcon, Award, Phone, ChevronDown,
@@ -17,42 +18,8 @@ import { featuredVehicles } from '@/data/vehicles';
 
 const featuredCars = featuredVehicles();
 
-const stats = [
-  { value: '15+', label: 'Jahre Erfahrung' },
-  { value: '2.500+', label: 'Optimierte Fahrzeuge' },
-  { value: '4WD', label: 'Allrad-Prüfstand' },
-  { value: '1.200', label: 'PS Prüfleistung' },
-];
-
-const stagePackages = [
-  { stage: 'Stage 1', delta: '+25 % PS', desc: 'Software-Optimierung', from: 'ab 599 €' },
-  { stage: 'Stage 2', delta: '+40 % PS', desc: 'Hardware + Software', from: 'ab 1.499 €' },
-  { stage: 'Eco', delta: '−15 % Verbrauch', desc: 'Spritspar-Tuning Diesel', from: 'ab 449 €' },
-  { stage: 'Optionen', delta: 'DTC · Pops & Bangs', desc: 'Individuelle Features', from: 'ab 99 €' },
-];
-
-const features = [
-  { icon: <Award className="h-6 w-6" />, title: 'Zertifizierte Optimierung', text: 'Eintragungsfähige Lösungen' },
-  { icon: <ShieldCheck className="h-6 w-6" />, title: 'TÜV-konform', text: 'Sicherheit hat Priorität' },
-  { icon: <Cpu className="h-6 w-6" />, title: 'Original-ECU', text: 'Reversibel & sauber' },
-  { icon: <Phone className="h-6 w-6" />, title: 'Persönliche Beratung', text: 'Termin nach Vereinbarung' },
-];
-
-const dynoFeatures = [
-  { icon: <Activity className="h-5 w-5" />, label: 'Lambda-Messung' },
-  { icon: <LineChartIcon className="h-5 w-5" />, label: 'PS & Nm Diagramm' },
-  { icon: <Gauge className="h-5 w-5" />, label: 'Bis 1.200 PS' },
-  { icon: <Wrench className="h-5 w-5" />, label: 'Vor- & Nachher-Vergleich' },
-];
-
-const tuningPoints = [
-  'Stage 1, Stage 2 & Eco-Stage für Diesel',
-  'Live-Leistungsprognose & Vergleichsmodus',
-  'Tuning-Optionen wie DTC, Pops & Bangs, V/Max-Off',
-  'Termin direkt vereinbaren – Optimierung in 1 Tag',
-];
-
 function HeroSection() {
+  const { t } = useTranslation();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
@@ -60,6 +27,13 @@ function HeroSection() {
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.6, 0.95]);
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  const stats = [
+    { value: '15+', label: t('stats.years') },
+    { value: '2.500+', label: t('stats.cars') },
+    { value: '4WD', label: t('stats.awd') },
+    { value: '1.200', label: t('stats.powerLimit') },
+  ];
 
   return (
     <section ref={ref} className="relative min-h-[92vh] flex items-end overflow-hidden">
@@ -95,7 +69,7 @@ function HeroSection() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="h-px w-10 bg-[hsl(var(--brand-gold))] origin-left"
             />
-            Insel Rügen · seit 2009
+            {t('hero.eyebrow')}
           </motion.span>
 
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-6 overflow-hidden">
@@ -105,7 +79,7 @@ function HeroSection() {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="block"
             >
-              Mehr Freude
+              {t('hero.title1')}
             </motion.span>
             <motion.span
               initial={{ y: '110%' }}
@@ -113,7 +87,7 @@ function HeroSection() {
               transition={{ duration: 0.9, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="block italic text-brand-gold"
             >
-              am Fahren.
+              {t('hero.title2')}
             </motion.span>
           </h1>
 
@@ -123,8 +97,7 @@ function HeroSection() {
             transition={{ duration: 0.7, delay: 0.8 }}
             className="text-lg md:text-xl text-white/85 max-w-xl leading-relaxed mb-10"
           >
-            Exklusive Fahrzeuge, ehrliches Chiptuning und ein eigener Allrad-Leistungsprüfstand –
-            alles unter einem Dach, direkt an der Ostsee.
+            {t('hero.intro')}
           </motion.p>
 
           <motion.div
@@ -138,14 +111,14 @@ function HeroSection() {
               className="group inline-flex items-center gap-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] px-7 py-4 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-gold))]/90 transition-all hover:shadow-2xl hover:shadow-[hsl(var(--brand-gold))]/30 hover:-translate-y-0.5"
             >
               <Sparkles className="h-4 w-4" />
-              Tuning konfigurieren
+              {t('hero.ctaConfigure')}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
               href="#fahrzeuge"
               className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-4 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-white/10 hover:border-brand-gold transition-all"
             >
-              Fahrzeugbörse
+              {t('nav.marketplace')}
             </a>
           </motion.div>
         </motion.div>
@@ -158,7 +131,7 @@ function HeroSection() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.6 }}
         className="absolute bottom-32 left-1/2 -translate-x-1/2 text-white/60 hover:text-brand-gold transition-colors"
-        aria-label="Nach unten scrollen"
+        aria-label={t('hero.scrollAria') as string}
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
