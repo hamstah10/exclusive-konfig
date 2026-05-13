@@ -3,7 +3,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import {
   Car, Settings2, Gauge, CircleDot, Wallet, ShoppingCart,
-  UserCircle, ShieldCheck, Globe, Sparkles, Type, Palette, MoveRight, Layers,
+  UserCircle, ShieldCheck, Globe, Sparkles, Type, Palette, MoveRight, Layers, Plug,
 } from 'lucide-react';
 import brandLogo from '@/assets/exclusive-automobile-ruegen-logo.png';
 
@@ -161,6 +161,21 @@ const sections: Section[] = [
       'Anfragen-Verwaltung mit Status-Workflow',
       'Prüfstand-Buchungen mit Termin-Übersicht',
       'Ankauf-Leads mit Filter und Status-Update',
+    ],
+  },
+  {
+    id: 'api',
+    eyebrow: 'Integration',
+    title: 'Fahrzeugdatenbank-API',
+    intro:
+      'Anbindung an die externe Fahrzeugdatenbank (verwaltung.tuningfux.de) über eine eigene Edge Function. Bearer-Token und X-Token-Id werden als Server-Secrets gehalten und nie an den Browser ausgeliefert.',
+    icon: Plug,
+    screenshot: '/docs/admin.png',
+    features: [
+      'Edge Function `fahrzeugdatenbank` als Proxy mit Pfad-Allowlist',
+      'Secrets `FAHRZEUGDB_API_TOKEN` & `FAHRZEUGDB_TOKEN_ID` im Backend',
+      'Frontend-Helper `src/lib/fahrzeugdatenbank-api.ts` mit typisierten Funktionen',
+      'Endpunkte: types, brands, series, models, engines, engine-details, track',
     ],
   },
 ];
