@@ -53,43 +53,47 @@ function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-dark))]/80 via-transparent to-transparent" />
 
-      {/* Animated water shimmer over the sea area in the hero image */}
+      {/* Animated SVG waves over the sea area in the hero image */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] overflow-hidden mix-blend-screen opacity-60"
-        style={{
-          maskImage:
-            'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
-          WebkitMaskImage:
-            'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
-        }}
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] overflow-hidden"
       >
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(180deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 6px, rgba(255,255,255,0.08) 7px, rgba(255,255,255,0) 8px)',
-            animation: 'waterShimmer 9s linear infinite',
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              'radial-gradient(ellipse at 30% 60%, rgba(212,175,90,0.18), transparent 55%), radial-gradient(ellipse at 70% 40%, rgba(255,255,255,0.12), transparent 60%)',
-            animation: 'waterDrift 14s ease-in-out infinite alternate',
-            filter: 'blur(6px)',
-          }}
-        />
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <path
+              id="heroWave"
+              d="M-720,160 C-540,120 -360,200 -180,160 C0,120 180,200 360,160 C540,120 720,200 900,160 C1080,120 1260,200 1440,160 C1620,120 1800,200 1980,160 C2160,120 2340,200 2520,160 L2520,320 L-720,320 Z"
+            />
+          </defs>
+
+          <g style={{ transformOrigin: 'center', animation: 'waveShiftA 14s ease-in-out infinite' }}>
+            <use href="#heroWave" y="40" fill="rgba(255,255,255,0.06)" />
+          </g>
+          <g style={{ transformOrigin: 'center', animation: 'waveShiftB 11s ease-in-out infinite' }}>
+            <use href="#heroWave" y="80" fill="rgba(212,175,90,0.10)" />
+          </g>
+          <g style={{ transformOrigin: 'center', animation: 'waveShiftA 9s ease-in-out infinite' }}>
+            <use href="#heroWave" y="130" fill="rgba(255,255,255,0.10)" />
+          </g>
+          <g style={{ transformOrigin: 'center', animation: 'waveShiftB 7s ease-in-out infinite' }}>
+            <use href="#heroWave" y="180" fill="rgba(255,255,255,0.14)" />
+          </g>
+        </svg>
         <style>{`
-          @keyframes waterShimmer {
-            0%   { transform: translate3d(-2%, 0, 0) skewY(-0.4deg); }
-            50%  { transform: translate3d(2%, 1px, 0) skewY(0.4deg); }
-            100% { transform: translate3d(-2%, 0, 0) skewY(-0.4deg); }
+          @keyframes waveShiftA {
+            0%   { transform: translateX(0); }
+            50%  { transform: translateX(-3%); }
+            100% { transform: translateX(0); }
           }
-          @keyframes waterDrift {
-            0%   { transform: translate3d(-3%, 0, 0) scale(1.05); opacity: 0.55; }
-            100% { transform: translate3d(3%, -2%, 0) scale(1.1); opacity: 0.85; }
+          @keyframes waveShiftB {
+            0%   { transform: translateX(0); }
+            50%  { transform: translateX(3%); }
+            100% { transform: translateX(0); }
           }
         `}</style>
       </div>
