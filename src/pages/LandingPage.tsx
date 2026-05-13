@@ -339,7 +339,7 @@ export default function LandingPage() {
                 className="group inline-flex items-center gap-2 bg-[hsl(var(--brand-gold))] text-[hsl(var(--brand-dark))] px-7 py-4 font-semibold text-sm uppercase tracking-[0.15em] hover:bg-[hsl(var(--brand-gold))]/90 transition-all hover:shadow-2xl hover:shadow-[hsl(var(--brand-gold))]/30 hover:-translate-y-0.5"
               >
                 <Gauge className="h-4 w-4" />
-                Jetzt konfigurieren
+                {t('chiptuning.cta')}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Reveal>
@@ -369,10 +369,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <SectionEyebrow>Fahrzeugbörse</SectionEyebrow>
+              <SectionEyebrow>{t('marketplace.eyebrow')}</SectionEyebrow>
               <Reveal direction="up" delay={0.1}>
                 <h2 className="font-display text-4xl md:text-5xl leading-tight">
-                  Aktuelle <span className="italic text-[hsl(var(--brand-gold))]">Highlights</span>
+                  {t('marketplace.title1')} <span className="italic text-[hsl(var(--brand-gold))]">{t('marketplace.title2')}</span>
                 </h2>
               </Reveal>
             </div>
@@ -381,7 +381,7 @@ export default function LandingPage() {
                 to="/fahrzeuge"
                 className="group text-sm font-semibold uppercase tracking-[0.15em] text-[hsl(var(--brand-dark))] border-b-2 border-[hsl(var(--brand-gold))] pb-1 inline-flex items-center gap-2"
               >
-                Alle Fahrzeuge ansehen
+                {t('marketplace.cta')}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Reveal>
@@ -409,14 +409,14 @@ export default function LandingPage() {
                     <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">{car.brand}</div>
                     <h3 className="font-display text-2xl mb-3">{car.model}</h3>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <span>EZ {car.year}</span>
+                      <span>{t('marketplace.regYear')} {car.year}</span>
                       <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-                      <span>{car.hp} PS</span>
+                      <span>{car.hp} {t('marketplace.hp')}</span>
                     </div>
                     <div className="flex items-end justify-between pt-4 border-t border-border">
                       <span className="font-display text-2xl text-[hsl(var(--brand-gold))]">{car.priceLabel}</span>
                       <span className="text-xs uppercase tracking-[0.15em] font-semibold inline-flex items-center gap-1 group-hover:text-[hsl(var(--brand-gold))] transition-colors">
-                        Details
+                        {t('marketplace.details')}
                         <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                       </span>
                     </div>
