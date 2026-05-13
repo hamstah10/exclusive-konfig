@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Filter, Fuel, Gauge, Cog, Calendar } from 'lucide-react';
+import { ArrowRight, Filter, Fuel, Gauge, Cog, Calendar, Search, X } from 'lucide-react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Reveal, StaggerGroup, StaggerItem } from '@/components/Reveal';
 import { ParallaxImage } from '@/components/Parallax';
 import { vehicles, type Vehicle } from '@/data/vehicles';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 type SortKey = 'newest' | 'price-asc' | 'price-desc' | 'hp-desc';
 
@@ -62,11 +66,60 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 export default function MarketplacePage() {
   const [category, setCategory] = useState<(typeof categories)[number]>('Alle');
   const [sort, setSort] = useState<SortKey>('newest');
+  const [search, setSearch] = useState('');
+  const [brands, setBrands] = useState<string[]>([]);
+  const [fuels, setFuels] = useState<string[]>([]);
+  const [transmissions, setTransmissions] = useState<string[]>([]);
+  const [drives, setDrives] = useState<string[]>([]);
+
+  const allBrands = useMemo(() => Array.from(new Set(vehicles.map((v) => v.brand))).sort(), []);
+  const allFuels = useMemo(() => Array.from(new Set(vehicles.map((v) => v.fuel))).sort(), []);
+  const allTransmissions = useMemo(() => Array.from(new Set(vehicles.map((v) => v.transmission))).sort(), []);
+  const allDrives = useMemo(() => Array.from(new Set(vehicles.map((v) => v.drive))).sort(), []);
+
+  const yearMin = useMemo(() => Math.min(...vehicles.map((v) => v.year)), []);
+  const yearMax = useMemo(() => Math.max(...vehicles.map((v) => v.year)), []);
+  const priceMax = useMemo(() => Math.max(...vehicles.map((v) => v.price)), []);
+  const kmMax = useMemo(() => Math.max(...vehicles.map((v) => v.km)), []);
+  const hpMax = useMemo(() => Math.max(...vehicles.map((v) => v.hp)), []);
+
+  const [yearRange, setYearRange] = useState<[number, number]>([yearMin, yearMax]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, priceMax]);
+  const [kmLimit, setKmLimit] = useState<number>(kmMax);
+  const [hpMin, setHpMin] = useState<number>(0);
+
+  const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
+    setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  };
+
+  const resetFilters = () => {
+    setCategory('Alle');
+    setSearch('');
+    setBrands([]);
+    setFuels([]);
+    setTransmissions([]);
+    setDrives([]);
+    setYearRange([yearMin, yearMax]);
+    setPriceRange([0, priceMax]);
+    setKmLimit(kmMax);
+    setHpMin(0);
+  };
 
   const filtered = useMemo(() => {
-    const list = vehicles.filter((vehicle) =>
-      category === 'Alle' ? true : vehicle.category === category
-    );
+    const q = search.trim().toLowerCase();
+    const list = vehicles.filter((vehicle) => {
+      if (category !== 'Alle' && vehicle.category !== category) return false;
+      if (brands.length && !brands.includes(vehicle.brand)) return false;
+      if (fuels.length && !fuels.includes(vehicle.fuel)) return false;
+      if (transmissions.length && !transmissions.includes(vehicle.transmission)) return false;
+      if (drives.length && !drives.includes(vehicle.drive)) return false;
+      if (vehicle.year < yearRange[0] || vehicle.year > yearRange[1]) return false;
+      if (vehicle.price < priceRange[0] || vehicle.price > priceRange[1]) return false;
+      if (vehicle.km > kmLimit) return false;
+      if (vehicle.hp < hpMin) return false;
+      if (q && !`${vehicle.brand} ${vehicle.model} ${vehicle.color}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
     const sorted = [...list];
     switch (sort) {
       case 'price-asc':
@@ -82,7 +135,22 @@ export default function MarketplacePage() {
         sorted.sort((a, b) => b.year - a.year);
     }
     return sorted;
-  }, [category, sort]);
+  }, [category, sort, search, brands, fuels, transmissions, drives, yearRange, priceRange, kmLimit, hpMin]);
+
+  const activeCount =
+    (category !== 'Alle' ? 1 : 0) +
+    brands.length +
+    fuels.length +
+    transmissions.length +
+    drives.length +
+    (yearRange[0] !== yearMin || yearRange[1] !== yearMax ? 1 : 0) +
+    (priceRange[0] !== 0 || priceRange[1] !== priceMax ? 1 : 0) +
+    (kmLimit !== kmMax ? 1 : 0) +
+    (hpMin !== 0 ? 1 : 0) +
+    (search ? 1 : 0);
+
+  const fmtEur = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n) + ' €';
+  const fmtKm = (n: number) => new Intl.NumberFormat('de-DE').format(n) + ' km';
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -123,6 +191,7 @@ export default function MarketplacePage() {
       </section>
 
       {/* FILTER */}
+      {/* TOOLBAR */}
       <section className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-2 flex-wrap">
@@ -158,24 +227,158 @@ export default function MarketplacePage() {
         </div>
       </section>
 
-      {/* GRID */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          {filtered.length === 0 ? (
-            <div className="text-center py-24 text-muted-foreground">
-              Keine Fahrzeuge in dieser Kategorie verfügbar.
+      {/* GRID + SIDEBAR */}
+      <section className="py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[280px_1fr] gap-8">
+          {/* SIDEBAR */}
+          <aside className="lg:sticky lg:top-24 lg:self-start space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs uppercase tracking-[0.3em] text-brand-gold">Filter</span>
+                <h2 className="font-display text-xl">Verfeinern</h2>
+              </div>
+              {activeCount > 0 && (
+                <Button type="button" variant="ghost" size="sm" onClick={resetFilters} className="text-xs">
+                  <X className="h-3 w-3 mr-1" />Reset ({activeCount})
+                </Button>
+              )}
             </div>
-          ) : (
-            <StaggerGroup className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.1}>
-              {filtered.map((vehicle) => (
-                <VehicleCard key={vehicle.slug} vehicle={vehicle} />
-              ))}
-            </StaggerGroup>
-          )}
+
+            <div className="relative">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Marke, Modell, Farbe…"
+                className="pl-9"
+              />
+            </div>
+
+            <FilterGroup title="Marke">
+              <div className="grid grid-cols-1 gap-2 max-h-56 overflow-y-auto pr-1">
+                {allBrands.map((b) => (
+                  <label key={b} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox checked={brands.includes(b)} onCheckedChange={() => toggle(brands, setBrands, b)} />
+                    <span>{b}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterGroup>
+
+            <FilterGroup title={`Erstzulassung (${yearRange[0]} – ${yearRange[1]})`}>
+              <Slider
+                min={yearMin}
+                max={yearMax}
+                step={1}
+                value={yearRange}
+                onValueChange={(v) => setYearRange([v[0], v[1]] as [number, number])}
+              />
+            </FilterGroup>
+
+            <FilterGroup title={`Preis (${fmtEur(priceRange[0])} – ${fmtEur(priceRange[1])})`}>
+              <Slider
+                min={0}
+                max={priceMax}
+                step={1000}
+                value={priceRange}
+                onValueChange={(v) => setPriceRange([v[0], v[1]] as [number, number])}
+              />
+            </FilterGroup>
+
+            <FilterGroup title={`Max. Kilometerstand (${fmtKm(kmLimit)})`}>
+              <Slider
+                min={0}
+                max={kmMax}
+                step={1000}
+                value={[kmLimit]}
+                onValueChange={(v) => setKmLimit(v[0])}
+              />
+            </FilterGroup>
+
+            <FilterGroup title={`Mindest-Leistung (${hpMin} PS)`}>
+              <Slider
+                min={0}
+                max={hpMax}
+                step={10}
+                value={[hpMin]}
+                onValueChange={(v) => setHpMin(v[0])}
+              />
+            </FilterGroup>
+
+            <FilterGroup title="Kraftstoff">
+              <div className="flex flex-wrap gap-2">
+                {allFuels.map((f) => (
+                  <Pill key={f} active={fuels.includes(f)} onClick={() => toggle(fuels, setFuels, f)}>{f}</Pill>
+                ))}
+              </div>
+            </FilterGroup>
+
+            <FilterGroup title="Getriebe">
+              <div className="flex flex-wrap gap-2">
+                {allTransmissions.map((t) => (
+                  <Pill key={t} active={transmissions.includes(t)} onClick={() => toggle(transmissions, setTransmissions, t)}>{t}</Pill>
+                ))}
+              </div>
+            </FilterGroup>
+
+            <FilterGroup title="Antrieb">
+              <div className="flex flex-wrap gap-2">
+                {allDrives.map((d) => (
+                  <Pill key={d} active={drives.includes(d)} onClick={() => toggle(drives, setDrives, d)}>{d}</Pill>
+                ))}
+              </div>
+            </FilterGroup>
+          </aside>
+
+          {/* GRID */}
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-6">
+              {filtered.length} {filtered.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'} gefunden
+            </p>
+            {filtered.length === 0 ? (
+              <div className="text-center py-24 text-muted-foreground border border-dashed border-border">
+                Keine Fahrzeuge passen zu deiner Auswahl.
+                <div className="mt-4">
+                  <Button variant="outline" onClick={resetFilters}>Filter zurücksetzen</Button>
+                </div>
+              </div>
+            ) : (
+              <StaggerGroup className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6" stagger={0.08}>
+                {filtered.map((vehicle) => (
+                  <VehicleCard key={vehicle.slug} vehicle={vehicle} />
+                ))}
+              </StaggerGroup>
+            )}
+          </div>
         </div>
       </section>
 
       <SiteFooter />
     </div>
+  );
+}
+
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-border pt-4">
+      <h3 className="text-xs uppercase tracking-[0.2em] text-[hsl(var(--brand-dark))] mb-3 font-semibold">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function Pill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-xs uppercase tracking-[0.15em] px-3 py-1.5 border transition-colors ${
+        active
+          ? 'bg-[hsl(var(--brand-dark))] text-white border-[hsl(var(--brand-dark))]'
+          : 'border-border text-muted-foreground hover:border-[hsl(var(--brand-gold))]'
+      }`}
+    >
+      {children}
+    </button>
   );
 }
