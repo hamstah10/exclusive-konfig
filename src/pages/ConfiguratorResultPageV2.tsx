@@ -307,27 +307,63 @@ export default function ConfiguratorResultPageV2() {
           {/* ECU Hersteller Badge */}
           <div className="mb-5">
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2 block">
-              ECU Hersteller
+              ECU Hersteller{result.apiData?.ecuName ? ` · ${result.apiData.ecuName}` : ''}
             </span>
             <div className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-border bg-background">
-              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive text-destructive-foreground">
-                <Cpu className="h-3.5 w-3.5" />
+              {result.apiData?.ecuManufacturerLogoUrl ? (
+                <img
+                  src={result.apiData.ecuManufacturerLogoUrl}
+                  alt={result.apiData.ecuManufacturer ?? 'ECU Hersteller'}
+                  className="h-5 w-auto object-contain"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive text-destructive-foreground">
+                  <Cpu className="h-3.5 w-3.5" />
+                </span>
+              )}
+              <span className="text-sm font-semibold text-foreground">
+                {result.apiData?.ecuManufacturer ?? ecuManufacturer}
               </span>
-              <span className="text-sm font-semibold text-foreground">{ecuManufacturer}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {tuningOptions.map((opt) => (
-              <div
-                key={opt.label}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-border bg-background"
-              >
-                <span className="text-muted-foreground shrink-0">{opt.icon}</span>
-                <span className="text-xs font-medium text-foreground truncate">{opt.label}</span>
+          {(() => {
+            const apiOpts = result.apiData?.tuningOptions ?? [];
+            if (apiOpts.length > 0) {
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {apiOpts.map((opt) => (
+                    <div
+                      key={opt.id}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-border bg-background"
+                      title={opt.name}
+                    >
+                      {opt.iconUrl ? (
+                        <img src={opt.iconUrl} alt="" className="h-5 w-5 object-contain shrink-0" loading="lazy" />
+                      ) : (
+                        <Settings2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                      )}
+                      <span className="text-xs font-medium text-foreground truncate">{opt.name}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                {tuningOptions.map((opt) => (
+                  <div
+                    key={opt.label}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-md border border-border bg-background"
+                  >
+                    <span className="text-muted-foreground shrink-0">{opt.icon}</span>
+                    <span className="text-xs font-medium text-foreground truncate">{opt.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </motion.div>
 
         <motion.div
