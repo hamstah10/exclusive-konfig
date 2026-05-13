@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowRight, Gauge, Wrench, Car, Activity, ShieldCheck, Sparkles,
   Cpu, LineChart as LineChartIcon, Award, Phone, ChevronDown,
+  Banknote, Calculator, CheckCircle2, Mic,
 } from 'lucide-react';
 import heroCar from '@/assets/hero-car.jpg';
 import dynoImg from '@/assets/dyno.jpg';
