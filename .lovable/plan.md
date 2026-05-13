@@ -1,50 +1,52 @@
-## Logo "exclusiv Automobile Rügen" — Monogramm + Insel
+## Ziel
 
-Premium Monogramm-Logo basierend auf der Brand-DNA (Gold #B89968 + Dark-Navy #1B2433). "eA"-Ligatur mit der Rügen-Insel-Silhouette als integrierter Akzent — kein Wortmarken-Logo.
+Unter dem bestehenden Brand-Refresh-Block (dunkler Bereich mit Logo + 4 Brand-Bausteinen) einen erweiterten Content-Showcase ergänzen, der den modernen, filigranen Logo-Stil demonstriert: dünne Linien, viel Weißraum, Lowercase-Typo, Silber/Navy/Gold, präzise Geometrie.
 
-### Designkonzept
+Alle neuen Elemente bleiben in der bestehenden dunklen Sektion auf `/dokumentation` (eine zusammenhängende Brand-Showcase-Section, keine neue Route).
 
-- **Monogramm "eA"** in Playfair Display, kursiv. Das geschwungene "e" und das großzügige "A" verschränken sich zu einer Ligatur.
-- **Rügen-Silhouette** in Gold, eingebaut als horizontaler Anker — fließt aus dem Querbalken des "A" oder unterstreicht das Monogramm wie eine geographische Grundlinie. Insel-Form anatomisch korrekt (langgestreckte Hauptform mit Halbinsel Wittow oben links, Mönchgut unten rechts).
-- **"exclusiv Automobile RÜGEN"** als feines uppercase-Label (tracking-[0.25em]) unter dem Monogramm — sehr eng gesetzt, fungiert als Untertitel, nicht als Hauptelement.
+## Aufbau (in dieser Reihenfolge unterhalb der vier Brand-Bausteine)
 
-### Drei Ausgabevarianten
+### 1. Brand-Specimen (Style-Guide-Block)
+Dreigeteilter Block mit dünnen Trennlinien:
+- **Typo-Skala** — vier Stufen (Display 64px, Headline 32px, Body 16px, Eyebrow 11px) mit Beispieltext, jeweils mit Label „type / 64 · display" links daneben
+- **Farbpalette** — drei Chips als schmale Hochrechtecke (Navy, Gold, Silver), jeweils mit HEX-Wert in Mono-Optik
+- **Logo-Lockups** — drei Größen des Logos nebeneinander (S/M/L), mit dünner Hilfslinie als Baseline darunter
 
-```text
-1. HORIZONTAL (Header)         2. QUADRATISCH (Favicon)      3. STEMPEL (Footer/Print)
-   ┌──────────────────────┐    ┌────────────┐                 ┌──────────────────┐
-   │  ╱e╲A   exclusiv     │    │   ╱e╲A     │                 │  ⌜ ╱e╲A ⌝        │
-   │ ◢◣◣◢◤  AUTOMOBILE    │    │  ◢◣◣◢◤    │                 │  ◢◣◣◢◤          │
-   │       RÜGEN          │    │            │                 │ EST · EXCLUSIV   │
-   └──────────────────────┘    └────────────┘                 │ AUTOMOBILE RÜGEN │
-                                                              └──────────────────┘
-```
+### 2. Zwei Mini-Hero-Beispiele
+Side-by-side Cards (2-spaltig, einspaltig auf mobile), je mit:
+- Großer Display-Headline mit goldenem Italic-Akzent
+- Eine Zeile Eyebrow-Text
+- Schlanker Outline-Button (1px Border, uppercase, viel Letter-Spacing)
+- Sehr dünne Hairline-Trenner
 
-### Umsetzung
+Beispiel-Inhalte:
+- „more joy of driving." (Hero für Tuning)
+- „handverlesen. heimat." (Hero für Fahrzeugbörse)
 
-1. **SVG-Komponente** `src/components/BrandLogo.tsx` (existiert bereits, wird ersetzt). Drei Varianten via Prop:
-   - `variant="horizontal"` — Header, Marketplace, Auth-Page
-   - `variant="mark"` — kompaktes Quadrat, ohne Untertitel
-   - `variant="stamp"` — kreisförmig/wappenartig für Footer
-2. **Rügen-Silhouette** als sauberer SVG-Pfad (handgezeichnet, vereinfacht aber wiedererkennbar — Wittow/Jasmund/Mönchgut als drei Halbinsel-Auswüchse), in Gold mit feiner Strichstärke.
-3. **Favicon** generiert aus der `mark`-Variante als 512×512 PNG → `public/favicon.png`, `index.html` aktualisiert.
-4. **SiteHeader** verwendet `<BrandLogo variant="horizontal" />` statt der drei `<span>`-Elemente.
-5. **SiteFooter** bekommt `<BrandLogo variant="stamp" />`.
-6. **AdminLayout** Sidebar nutzt `<BrandLogo variant="mark" />`.
+### 3. Card-Set (3 Karten)
+Drei schmale Service-Karten im neuen Stil:
+- Nur dünner Border, kein Fill
+- Nummerierung „01 / 02 / 03" in Mono-Optik
+- Lowercase-Titel, kurzer Body, dezenter Pfeil-Link
+Themen: „prüfstand", „chiptuning", „ankauf"
 
-### Technische Details
+## Stil-Regeln für alle neuen Elemente
 
-- **Reines SVG**, keine Bilddateien für Header (skaliert verlustfrei, sehr klein, Farben via `currentColor`/CSS-Variablen steuerbar).
-- Farben über `hsl(var(--brand-gold))` und `hsl(var(--brand-dark))` — schaltbar je nach Hintergrund (auf dunklem Header: Gold + Weiß; auf hellem Footer: Gold + Dark-Navy).
-- Rügen-Pfad als wiederverwendbare Konstante `RUEGEN_PATH` exportiert.
-- Favicon: Quadratische SVG → via Sharp/Canvas zu PNG 512×512 mit dunklem Hintergrund + goldenem Monogramm.
+- Bleibt im dunklen Section-Container (`bg-[hsl(var(--brand-dark))]`)
+- Borders: `border-white/10` bis `border-white/20`, niemals fülle Flächen mit Farbe (außer Gold-Akzent als 1px-Linie oder Mini-Chip)
+- Typografie: Display-Texte in **lowercase**, mit Letter-Spacing leicht positiv; Eyebrows uppercase mit `tracking-[0.3em]`
+- Buttons: nur Outline-Variante, kein Fill
+- Goldene Akzente sparsam — nur ein Element pro Karte/Block
 
-### Geänderte Dateien
+## Technische Umsetzung
 
-- `src/components/BrandLogo.tsx` — komplette Neufassung mit 3 Varianten + Rügen-Silhouette
-- `src/components/SiteHeader.tsx` — Wortmarke ersetzt
-- `src/components/SiteFooter.tsx` — Stempel hinzugefügt
-- `src/components/AdminLayout.tsx` — Mark in Sidebar
-- `public/favicon.png` — neu generiert
-- `public/favicon.ico` — gelöscht (damit Browser das PNG nimmt)
-- `index.html` — favicon-Link aktualisiert
+- Eine Datei: `src/pages/DokumentationPage.tsx` erweitern (innerhalb der bestehenden Brand-Refresh-`<section>`, unter dem 4er-Grid)
+- Keine neuen Komponenten, kein Routing, keine Daten
+- Tailwind-only, keine neuen Dependencies
+- Responsive: Specimen + Heroes 2-spaltig ab `md:`, Card-Set 3-spaltig ab `lg:`
+
+## Out of scope
+
+- Übertragung des Stils auf andere Seiten (Landing, Marktplatz etc.)
+- Änderungen am Logo selbst
+- Änderungen am Design-Token-System (`index.css`)
