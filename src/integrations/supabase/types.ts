@@ -548,6 +548,81 @@ export type Database = {
           },
         ]
       }
+      vehicles: {
+        Row: {
+          brand: string
+          category: string
+          color: string
+          cover_image: string | null
+          created_at: string
+          description: string
+          drive: string
+          featured: boolean
+          fuel: string
+          gallery: string[]
+          highlights: string[]
+          hp: number
+          id: string
+          is_active: boolean
+          km: number
+          model: string
+          price: number
+          slug: string
+          sort_order: number
+          transmission: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          brand: string
+          category: string
+          color: string
+          cover_image?: string | null
+          created_at?: string
+          description?: string
+          drive: string
+          featured?: boolean
+          fuel: string
+          gallery?: string[]
+          highlights?: string[]
+          hp: number
+          id?: string
+          is_active?: boolean
+          km: number
+          model: string
+          price: number
+          slug: string
+          sort_order?: number
+          transmission: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          brand?: string
+          category?: string
+          color?: string
+          cover_image?: string | null
+          created_at?: string
+          description?: string
+          drive?: string
+          featured?: boolean
+          fuel?: string
+          gallery?: string[]
+          highlights?: string[]
+          hp?: number
+          id?: string
+          is_active?: boolean
+          km?: number
+          model?: string
+          price?: number
+          slug?: string
+          sort_order?: number
+          transmission?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
