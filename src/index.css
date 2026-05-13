@@ -121,6 +121,20 @@
 }
 
 @layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+  }
+
+  .bg-brand-dark {
+    background-color: hsl(var(--brand-dark));
+    color: hsl(var(--brand-dark-foreground));
+  }
+
+  .text-brand-gold {
+    color: hsl(var(--brand-gold));
+  }
+
   .font-mono-data {
     font-family: 'JetBrains Mono', monospace;
     font-variant-numeric: tabular-nums;
