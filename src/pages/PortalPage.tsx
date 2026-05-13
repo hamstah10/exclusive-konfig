@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Inbox, LogOut, Loader2 } from 'lucide-react';
+import { ArrowRight, Inbox, LogOut, Loader2, FileText, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -10,6 +10,7 @@ import type { Database } from '@/integrations/supabase/types';
 import { findVehicle } from '@/data/vehicles';
 
 type Lead = Database['public']['Tables']['leads']['Row'];
+type Attachment = Database['public']['Tables']['lead_attachments']['Row'];
 
 const STATUS_META: Record<Lead['status'], { label: string; tone: string; description: string }> = {
   neu: {
@@ -71,21 +72,36 @@ function fmtDate(iso: string) {
 export default function PortalPage() {
   const { user, loading: authLoading, signOut } = useAuth();
   const [leads, setLeads] = useState<Lead[] | null>(null);
+  const [attachments, setAttachments] = useState<Record<string, Attachment[]>>({});
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) {
-          console.error(error);
-          setLeads([]);
-          return;
-        }
-        setLeads(data ?? []);
-      });
+    const load = async () => {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error(error);
+        setLeads([]);
+        return;
+      }
+      setLeads(data ?? []);
+      const ids = (data ?? []).map((l) => l.id);
+      if (ids.length > 0) {
+        const { data: atts } = await supabase
+          .from('lead_attachments')
+          .select('*')
+          .in('lead_id', ids)
+          .order('created_at', { ascending: true });
+        const grouped: Record<string, Attachment[]> = {};
+        (atts ?? []).forEach((a) => {
+          (grouped[a.lead_id] ||= []).push(a);
+        });
+        setAttachments(grouped);
+      }
+    };
+    load();
 
     // Realtime updates so users see status changes live
     const channel = supabase
@@ -93,13 +109,7 @@ export default function PortalPage() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'leads', filter: `user_id=eq.${user.id}` },
-        () => {
-          supabase
-            .from('leads')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .then(({ data }) => setLeads(data ?? []));
-        }
+        () => load()
       )
       .subscribe();
 
@@ -107,6 +117,17 @@ export default function PortalPage() {
       supabase.removeChannel(channel);
     };
   }, [user]);
+
+  const downloadAttachment = async (att: Attachment) => {
+    const { data, error } = await supabase.storage
+      .from('lead-attachments')
+      .createSignedUrl(att.file_path, 60);
+    if (error || !data?.signedUrl) {
+      console.error(error);
+      return;
+    }
+    window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+  };
 
   if (authLoading) {
     return (
@@ -220,6 +241,34 @@ export default function PortalPage() {
                         Notiz vom Team
                       </div>
                       {lead.admin_note}
+                    </div>
+                  )}
+
+                  {attachments[lead.id]?.length > 0 && (
+                    <div className="mt-4">
+                      <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                        Anhänge ({attachments[lead.id].length})
+                      </div>
+                      <ul className="space-y-1.5">
+                        {attachments[lead.id].map((att) => (
+                          <li key={att.id}>
+                            <button
+                              type="button"
+                              onClick={() => downloadAttachment(att)}
+                              className="w-full flex items-center gap-3 bg-secondary border border-border px-3 py-2 text-sm hover:border-[hsl(var(--brand-gold))] transition-colors text-left"
+                            >
+                              <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                              <span className="flex-1 truncate">{att.file_name}</span>
+                              {att.size_bytes && (
+                                <span className="text-xs text-muted-foreground flex-shrink-0">
+                                  {(att.size_bytes / 1024).toFixed(0)} KB
+                                </span>
+                              )}
+                              <Download className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
