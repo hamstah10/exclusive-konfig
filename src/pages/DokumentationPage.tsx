@@ -5,6 +5,7 @@ import {
   Car, Settings2, Gauge, CircleDot, Wallet, ShoppingCart,
   UserCircle, ShieldCheck, Globe, Sparkles,
 } from 'lucide-react';
+import brandLogo from '@/assets/exclusive-automobile-ruegen-logo.png';
 
 interface Section {
   id: string;
@@ -278,6 +279,30 @@ export default function DokumentationPage() {
           </article>
         ))}
       </div>
+
+      {/* Brand-Refresh Logo */}
+      <section className="bg-[hsl(var(--brand-dark))] py-20 md:py-28 mt-16">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[hsl(var(--brand-gold))] mb-6">
+            <span className="h-px w-10 bg-[hsl(var(--brand-gold))]" />
+            Brand Refresh
+          </span>
+          <h2 className="font-display text-3xl md:text-4xl text-white mb-10">
+            Neues <em className="italic text-[hsl(var(--brand-gold))]">Erscheinungsbild</em>
+          </h2>
+          <div className="flex justify-center">
+            <img
+              src={brandLogo}
+              alt="exclusive Automobile Rügen Logo"
+              className="max-w-2xl w-full h-auto"
+              loading="lazy"
+            />
+          </div>
+          <p className="text-white/60 text-sm mt-8 max-w-xl mx-auto leading-relaxed">
+            Überarbeitete Wortmarke mit klarer Typografie und gebogenem Signet – inspiriert von der Küstenlinie Rügens.
+          </p>
+        </div>
+      </section>
 
       <SiteFooter />
     </div>
