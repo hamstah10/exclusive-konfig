@@ -74,6 +74,60 @@ export type Database = {
         }
         Relationships: []
       }
+      felgen_anfragen: {
+        Row: {
+          created_at: string
+          design: string | null
+          email: string
+          finish: string | null
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          season: string | null
+          size: number | null
+          status: string
+          tire_brand: string | null
+          tire_model: string | null
+          total_price: number | null
+          vehicle_class: string | null
+        }
+        Insert: {
+          created_at?: string
+          design?: string | null
+          email: string
+          finish?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          season?: string | null
+          size?: number | null
+          status?: string
+          tire_brand?: string | null
+          tire_model?: string | null
+          total_price?: number | null
+          vehicle_class?: string | null
+        }
+        Update: {
+          created_at?: string
+          design?: string | null
+          email?: string
+          finish?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          season?: string | null
+          size?: number | null
+          status?: string
+          tire_brand?: string | null
+          tire_model?: string | null
+          total_price?: number | null
+          vehicle_class?: string | null
+        }
+        Relationships: []
+      }
       lead_attachments: {
         Row: {
           created_at: string
@@ -620,6 +674,69 @@ export type Database = {
           transmission?: string
           updated_at?: string
           year?: number
+        }
+        Relationships: []
+      }
+      vermittlung_anfragen: {
+        Row: {
+          body_types: string[] | null
+          brand: string | null
+          budget_max: number | null
+          color: string | null
+          created_at: string
+          email: string
+          first_name: string
+          fuel: string | null
+          gearbox: string | null
+          id: string
+          km_max: number | null
+          last_name: string
+          model: string | null
+          notes: string | null
+          phone: string | null
+          status: string
+          year_from: number | null
+          year_to: number | null
+        }
+        Insert: {
+          body_types?: string[] | null
+          brand?: string | null
+          budget_max?: number | null
+          color?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          fuel?: string | null
+          gearbox?: string | null
+          id?: string
+          km_max?: number | null
+          last_name: string
+          model?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Update: {
+          body_types?: string[] | null
+          brand?: string | null
+          budget_max?: number | null
+          color?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          fuel?: string | null
+          gearbox?: string | null
+          id?: string
+          km_max?: number | null
+          last_name?: string
+          model?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          year_from?: number | null
+          year_to?: number | null
         }
         Relationships: []
       }
