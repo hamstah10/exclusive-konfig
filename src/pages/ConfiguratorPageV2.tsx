@@ -5,7 +5,7 @@ import { Car, Zap, ArrowRight, Loader2, Shield, AlertTriangle, Gauge, Sparkles }
 import { Leaf, Star } from 'lucide-react';
 import { Stage1Icon, Stage2Icon } from '@/components/StageIcons';
 import { Button } from '@/components/ui/button';
-import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs, buildAssetUrl, type ConfiguratorApiData, type ApiTuningOption, type ApiStageData } from '@/lib/configurator-store';
+import { generateRecommendation, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID, stageConfigs, buildAssetUrl, type ConfiguratorApiData, type ApiTuningOption, type ApiStage } from '@/lib/configurator-store';
 import VehicleSearch from '@/components/VehicleSearch';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -175,21 +175,42 @@ export default function ConfiguratorPageV2() {
           description: typeof o.description === 'string' ? o.description : undefined,
         }));
 
-        // Parse API stage data (tuned HP/Nm per stage)
-        // API stages are ordered by performance level → index 0 = Stage 1, index 1 = Stage 2, index 2 = Eco
+        // Parse full API stage data (HP/Nm/Preis/Beschreibung/Icon/Bilder)
         const rawStages = (details.stages ?? []) as Array<Record<string, unknown>>;
-        const apiStages: ApiStageData[] = rawStages.map((s, idx) => ({
-          stageId: idx + 1,
-          hp: pickNum(s, ['power', 'horsepower', 'ps', 'hp', 'tuned_power', 'tuned_hp', 'power_hp']),
-          nm: pickNum(s, ['torque', 'nm', 'tuned_torque', 'tuned_nm', 'torque_nm']),
-        })).filter((s) => (s.hp ?? 0) > 0 || (s.nm ?? 0) > 0);
+        const apiStagesFull: ApiStage[] = rawStages
+          .map((s) => {
+            const hp = pickNum(s, ['hp', 'horsepower', 'power', 'ps', 'tuned_hp', 'tuned_power']);
+            const nm = pickNum(s, ['nm', 'torque', 'tuned_nm', 'tuned_torque']);
+            const priceRaw = s.price;
+            const price =
+              typeof priceRaw === 'number'
+                ? priceRaw
+                : typeof priceRaw === 'string' && priceRaw.trim() !== ''
+                  ? Number(priceRaw)
+                  : undefined;
+            const imagesRaw = Array.isArray(s.images) ? (s.images as unknown[]) : [];
+            return {
+              id: Number(s.id),
+              name: typeof s.name === 'string' ? s.name : '',
+              hp,
+              nm,
+              price: typeof price === 'number' && !Number.isNaN(price) ? price : undefined,
+              description: typeof s.description === 'string' ? s.description : undefined,
+              iconUrl: buildAssetUrl(typeof s.icon === 'string' ? (s.icon as string) : undefined),
+              imageUrls: imagesRaw
+                .map((p) => (typeof p === 'string' ? buildAssetUrl(p) : undefined))
+                .filter((u): u is string => typeof u === 'string'),
+              ecuId: typeof s.ecu === 'number' ? s.ecu : undefined,
+            };
+          })
+          .filter((s) => s.hp > 0 || s.nm > 0);
 
         setApiData({
           ecuName: typeof ecu?.name === 'string' ? ecu.name : undefined,
           ecuManufacturer: typeof ecu?.manufacturer === 'string' ? ecu.manufacturer : undefined,
           ecuManufacturerLogoUrl: buildAssetUrl(typeof ecu?.manufacturerLogo === 'string' ? ecu.manufacturerLogo as string : undefined),
           tuningOptions,
-          apiStages: apiStages.length > 0 ? apiStages : undefined,
+          stages: apiStagesFull.length > 0 ? apiStagesFull : undefined,
         });
         setAutoDetected(true);
       })

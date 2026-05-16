@@ -20,6 +20,16 @@ export function getStageTotalPrice(cfg: StageConfig): number {
   return cfg.basePrice + Object.values(cfg.componentPrices).reduce((sum, p) => sum + p, 0);
 }
 
+function stripHtml(html?: string): string | undefined {
+  if (!html) return undefined;
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > 0 ? text : undefined;
+}
+
 export const stageConfigs: StageConfig[] = [
   {
     stageId: 1,
@@ -88,6 +98,9 @@ export interface ConfiguratorResult {
   stages: {
     recommendation: Recommendation;
     dynoPoints: DynoDataPoint[];
+    apiStage?: ApiStage;
+    /** Total price for this stage (API stage price, or fallback from mock). */
+    totalPrice: number;
   }[];
   apiData?: ConfiguratorApiData;
 }
@@ -100,11 +113,17 @@ export interface ApiTuningOption {
   description?: string;
 }
 
-export interface ApiStageData {
-  /** Maps to local stageConfigs stageId (1 = Stage 1, 2 = Stage 2, 3 = Eco) */
-  stageId: number;
-  hp?: number;
-  nm?: number;
+export interface ApiStage {
+  /** API stage id */
+  id: number;
+  name: string;
+  hp: number;
+  nm: number;
+  price?: number;
+  description?: string;
+  iconUrl?: string;
+  imageUrls?: string[];
+  ecuId?: number;
 }
 
 export interface ConfiguratorApiData {
@@ -112,7 +131,7 @@ export interface ConfiguratorApiData {
   ecuManufacturer?: string;
   ecuManufacturerLogoUrl?: string;
   tuningOptions: ApiTuningOption[];
-  apiStages?: ApiStageData[];
+  stages?: ApiStage[];
 }
 
 export const FAHRZEUGDB_ASSET_BASE = 'https://verwaltung.tuningfux.de';
@@ -173,38 +192,72 @@ export function generateRecommendation(
 ): ConfiguratorResult {
   const id = crypto.randomUUID();
 
-  const stages = stageConfigs.map((cfg) => {
-    const apiStage = apiData?.apiStages?.find((s) => s.stageId === cfg.stageId);
-    const apiHp = apiStage?.hp && apiStage.hp > vehicle.stock_hp ? apiStage.hp : undefined;
-    const apiNm = apiStage?.nm && apiStage.nm > vehicle.stock_nm ? apiStage.nm : undefined;
+  const peakHpRpm = vehicle.fuel_type === 'diesel' ? 4200 : 5500;
+  const peakNmRpm = vehicle.fuel_type === 'diesel' ? 2200 : 3200;
+  const disclaimer =
+    'Alle Werte sind fahrzeugspezifische Prognosen basierend auf Referenzmessungen vergleichbarer Fahrzeuge. Tatsächliche Ergebnisse können je nach Zustand, Laufleistung und Umgebungsbedingungen abweichen.';
 
-    const estimatedHp = apiHp ?? (vehicle.stock_hp + Math.round(vehicle.stock_hp * cfg.hpMultiplier));
-    const estimatedNm = apiNm ?? (vehicle.stock_nm + Math.round(vehicle.stock_nm * cfg.nmMultiplier));
+  const apiStages = apiData?.stages ?? [];
+  const useApi = apiStages.length > 0;
+
+  const stages: ConfiguratorResult['stages'] = stageConfigs.map((cfg, idx) => {
+    // Map stage 1 → apiStages[0], stage 2 → apiStages[1], Eco → derived from apiStages[0]
+    let apiStage: ApiStage | undefined;
+    if (useApi) {
+      if (cfg.stageId === ECO_STAGE_ID) {
+        const base = apiStages[0];
+        if (base) {
+          apiStage = {
+            ...base,
+            id: -1,
+            name: 'Eco Tuning',
+            hp: Math.round((base.hp ?? vehicle.stock_hp) * 0.95),
+            nm: Math.round((base.nm ?? vehicle.stock_nm) * 0.95),
+            price: typeof base.price === 'number' ? Math.round(base.price * 0.9) : undefined,
+            description: undefined,
+            iconUrl: undefined,
+            imageUrls: undefined,
+          };
+        }
+      } else {
+        apiStage = apiStages[idx];
+      }
+    }
+
+    const estimatedHp = apiStage
+      ? Math.max(apiStage.hp, vehicle.stock_hp)
+      : vehicle.stock_hp + Math.round(vehicle.stock_hp * cfg.hpMultiplier);
+    const estimatedNm = apiStage
+      ? Math.max(apiStage.nm, vehicle.stock_nm)
+      : vehicle.stock_nm + Math.round(vehicle.stock_nm * cfg.nmMultiplier);
     const deltaHp = estimatedHp - vehicle.stock_hp;
     const deltaNm = estimatedNm - vehicle.stock_nm;
+
+    const stageLabel = apiStage?.name
+      ? (cfg.stageId === ECO_STAGE_ID ? 'Eco Tuning – Verbrauchsoptimierung' : apiStage.name)
+      : cfg.label;
+    const description = stripHtml(apiStage?.description) ?? cfg.description(vehicle);
+    const totalPrice = apiStage?.price ?? getStageTotalPrice(cfg);
 
     const recommendation: Recommendation = {
       id: `rec-${id.slice(0, 8)}-s${cfg.stageId}`,
       created_at: new Date().toISOString(),
       vehicle_id: vehicle.id,
       stage_id: cfg.stageId,
-      stage_label: cfg.label,
+      stage_label: stageLabel,
       delta_hp: deltaHp,
       delta_nm: deltaNm,
       estimated_hp: estimatedHp,
       estimated_nm: estimatedNm,
       risk_assessment: cfg.risk,
-      description: cfg.description(vehicle),
-      disclaimer:
-        'Alle Werte sind fahrzeugspezifische Prognosen basierend auf Referenzmessungen vergleichbarer Fahrzeuge. Tatsächliche Ergebnisse können je nach Zustand, Laufleistung und Umgebungsbedingungen abweichen.',
+      description,
+      disclaimer,
       components: cfg.components,
     };
 
-    const peakHpRpm = vehicle.fuel_type === 'diesel' ? 4200 : 5500;
-    const peakNmRpm = vehicle.fuel_type === 'diesel' ? 2200 : 3200;
     const dynoPoints = generateDynoCurve(estimatedHp, estimatedNm, peakHpRpm, peakNmRpm);
 
-    return { recommendation, dynoPoints };
+    return { recommendation, dynoPoints, apiStage, totalPrice };
   });
 
   const result: ConfiguratorResult = {
