@@ -13,7 +13,7 @@ import {
   ResponsiveContainer, Legend,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { getResult, stageConfigs, getStageTotalPrice, formatPrice, getAvailableStages, ECO_STAGE_ID } from '@/lib/configurator-store';
+import { getResult, stageConfigs, formatPrice, getAvailableStages, ECO_STAGE_ID } from '@/lib/configurator-store';
 import { getEcuManufacturer } from '@/lib/ecu';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -70,7 +70,7 @@ export default function ConfiguratorResultPageV2() {
   const rec = stageData.recommendation;
   const dynoPoints = stageData.dynoPoints;
   const ecuManufacturer = getEcuManufacturer(vehicle.ecu_type);
-  const stageTotal = getStageTotalPrice(stageConfigs[activeStage - 1]);
+  const stageTotal = stageData.totalPrice;
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -132,7 +132,9 @@ export default function ConfiguratorResultPageV2() {
         >
           {getAvailableStages(vehicle.fuel_type).map((cfg) => {
             const isActive = activeStage === cfg.stageId;
-            const stageRec = stages[cfg.stageId - 1].recommendation;
+            const stageEntry = stages[cfg.stageId - 1];
+            const stageRec = stageEntry.recommendation;
+            const stageIconUrl = stageEntry.apiStage?.iconUrl;
             const isEco = cfg.stageId === ECO_STAGE_ID;
             const accentText = isEco ? 'text-[hsl(var(--success))]' : 'text-destructive';
             const accentBorder = isEco
@@ -161,13 +163,19 @@ export default function ConfiguratorResultPageV2() {
                       +{stageRec.delta_hp} PS · +{stageRec.delta_nm} Nm
                     </p>
                     <p className="text-xs font-bold text-foreground mt-1">
-                      {formatPrice(getStageTotalPrice(cfg))}
+                      {formatPrice(stageEntry.totalPrice)}
                     </p>
                   </div>
                   <div className={`shrink-0 ${isActive ? accentText : 'text-muted-foreground'}`}>
-                    {cfg.stageId === 1 && <Stage1Icon className="h-12 w-auto" />}
-                    {cfg.stageId === 2 && <Stage2Icon className="h-12 w-auto" />}
-                    {isEco && <Leaf className="h-10 w-10 text-[hsl(var(--success))]" />}
+                    {stageIconUrl && !isEco ? (
+                      <img src={stageIconUrl} alt="" className="h-12 w-auto object-contain" loading="lazy" />
+                    ) : (
+                      <>
+                        {cfg.stageId === 1 && <Stage1Icon className="h-12 w-auto" />}
+                        {cfg.stageId === 2 && <Stage2Icon className="h-12 w-auto" />}
+                        {isEco && <Leaf className="h-10 w-10 text-[hsl(var(--success))]" />}
+                      </>
+                    )}
                   </div>
                 </div>
               </button>
