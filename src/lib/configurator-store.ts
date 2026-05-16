@@ -20,6 +20,16 @@ export function getStageTotalPrice(cfg: StageConfig): number {
   return cfg.basePrice + Object.values(cfg.componentPrices).reduce((sum, p) => sum + p, 0);
 }
 
+function stripHtml(html?: string): string | undefined {
+  if (!html) return undefined;
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > 0 ? text : undefined;
+}
+
 export const stageConfigs: StageConfig[] = [
   {
     stageId: 1,
