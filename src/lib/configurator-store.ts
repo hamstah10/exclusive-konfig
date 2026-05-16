@@ -88,6 +88,9 @@ export interface ConfiguratorResult {
   stages: {
     recommendation: Recommendation;
     dynoPoints: DynoDataPoint[];
+    apiStage?: ApiStage;
+    /** Total price for this stage (API stage price, or fallback from mock). */
+    totalPrice: number;
   }[];
   apiData?: ConfiguratorApiData;
 }
@@ -100,11 +103,17 @@ export interface ApiTuningOption {
   description?: string;
 }
 
-export interface ApiStageData {
-  /** Maps to local stageConfigs stageId (1 = Stage 1, 2 = Stage 2, 3 = Eco) */
-  stageId: number;
-  hp?: number;
-  nm?: number;
+export interface ApiStage {
+  /** API stage id */
+  id: number;
+  name: string;
+  hp: number;
+  nm: number;
+  price?: number;
+  description?: string;
+  iconUrl?: string;
+  imageUrls?: string[];
+  ecuId?: number;
 }
 
 export interface ConfiguratorApiData {
@@ -112,7 +121,7 @@ export interface ConfiguratorApiData {
   ecuManufacturer?: string;
   ecuManufacturerLogoUrl?: string;
   tuningOptions: ApiTuningOption[];
-  apiStages?: ApiStageData[];
+  stages?: ApiStage[];
 }
 
 export const FAHRZEUGDB_ASSET_BASE = 'https://verwaltung.tuningfux.de';
