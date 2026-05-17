@@ -66,7 +66,8 @@ export default function ConfiguratorResultPageV2() {
   }
 
   const { vehicle, stages } = result;
-  const stageData = stages[activeStage - 1];
+  const visibleStages = stages.filter((stage) => stage.recommendation.stage_id !== ECO_STAGE_ID || vehicle.fuel_type === 'diesel');
+  const stageData = visibleStages.find((stage) => stage.recommendation.stage_id === activeStage) ?? visibleStages[0];
   const rec = stageData.recommendation;
   const dynoPoints = stageData.dynoPoints;
   const ecuManufacturer = getEcuManufacturer(vehicle.ecu_type);
@@ -130,25 +131,25 @@ export default function ConfiguratorResultPageV2() {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.05 }}
           className="flex gap-2"
         >
-          {getAvailableStages(vehicle.fuel_type).map((cfg) => {
-            const isActive = activeStage === cfg.stageId;
-            const stageEntry = stages[cfg.stageId - 1];
+          {visibleStages.map((stageEntry) => {
+            const stageId = stageEntry.recommendation.stage_id;
+            const isActive = activeStage === stageId;
             const stageRec = stageEntry.recommendation;
             const stageIconUrl = stageEntry.apiStage?.iconUrl;
-            const isEco = cfg.stageId === ECO_STAGE_ID;
+            const isEco = stageId === ECO_STAGE_ID;
             const accentText = isEco ? 'text-[hsl(var(--success))]' : 'text-destructive';
             const accentBorder = isEco
               ? 'border-[hsl(var(--success))] bg-[hsl(var(--success))]/5 ring-1 ring-[hsl(var(--success))]'
               : 'border-destructive bg-destructive/5 ring-1 ring-destructive';
             return (
               <button
-                key={cfg.stageId}
-                onClick={() => setActiveStage(cfg.stageId)}
+                key={stageId}
+                onClick={() => setActiveStage(stageId)}
                 className={`relative flex-1 p-3 rounded-md border text-left transition-all ${
                   isActive ? accentBorder : 'border-border bg-card hover:border-muted-foreground/30'
                 }`}
               >
-                {cfg.stageId === 1 && (<span className="absolute -top-2.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-[9px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full shadow-lg shadow-destructive/30 ring-1 ring-destructive/40"><Star className="h-2.5 w-2.5 fill-current" />Beliebt</span>)}
+                {stageId === 1 && (<span className="absolute -top-2.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-[9px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full shadow-lg shadow-destructive/30 ring-1 ring-destructive/40"><Star className="h-2.5 w-2.5 fill-current" />Beliebt</span>)}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     {isEco && (
@@ -163,7 +164,7 @@ export default function ConfiguratorResultPageV2() {
                       +{stageRec.delta_hp} PS · +{stageRec.delta_nm} Nm
                     </p>
                     <p className="text-xs font-bold text-foreground mt-1">
-                      {formatPrice(stageEntry.totalPrice)}
+                      {stageEntry.totalPrice !== null ? formatPrice(stageEntry.totalPrice) : 'Preis auf Anfrage'}
                     </p>
                   </div>
                   <div className={`shrink-0 ${isActive ? accentText : 'text-muted-foreground'}`}>
@@ -171,8 +172,8 @@ export default function ConfiguratorResultPageV2() {
                       <img src={stageIconUrl} alt="" className="h-12 w-auto object-contain" loading="lazy" />
                     ) : (
                       <>
-                        {cfg.stageId === 1 && <Stage1Icon className="h-12 w-auto" />}
-                        {cfg.stageId === 2 && <Stage2Icon className="h-12 w-auto" />}
+                        {stageId === 1 && <Stage1Icon className="h-12 w-auto" />}
+                        {stageId === 2 && <Stage2Icon className="h-12 w-auto" />}
                         {isEco && <Leaf className="h-10 w-10 text-[hsl(var(--success))]" />}
                       </>
                     )}
@@ -196,7 +197,7 @@ export default function ConfiguratorResultPageV2() {
               <Euro className="h-4 w-4" /><span className="text-[10px] uppercase tracking-wider font-medium">Gesamtpreis</span>
             </div>
             <p className={`text-lg font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>
-              <CountUp value={stageTotal} format={formatPrice} />
+              {stageTotal !== null ? <CountUp value={stageTotal} format={formatPrice} /> : 'Preis auf Anfrage'}
             </p>
             <Popover>
               <PopoverTrigger asChild>
@@ -212,7 +213,9 @@ export default function ConfiguratorResultPageV2() {
                 <h4 className="text-sm font-semibold text-foreground mb-3">Komponenten & Preise</h4>
                 <div className="space-y-2">
                   {rec.components.map((c) => {
-                    const price = stageConfigs[activeStage - 1].componentPrices[c] ?? 0;
+                    const fallbackConfig = stageConfigs.find((cfg) => cfg.stageId === activeStage);
+                    const apiPrice = result.apiData?.tuningOptions.find((option) => option.name === c)?.price;
+                    const price = apiPrice ?? fallbackConfig?.componentPrices[c] ?? 0;
                     return (
                       <div key={c} className="flex items-center justify-between gap-2">
                         <span className="px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground text-xs font-medium">{c}</span>
@@ -224,7 +227,7 @@ export default function ConfiguratorResultPageV2() {
                   })}
                   <div className="border-t border-border pt-2 mt-3 flex items-center justify-between">
                     <span className="text-sm font-bold text-foreground">Gesamt</span>
-                    <span className={`text-sm font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{formatPrice(stageTotal)}</span>
+                    <span className={`text-sm font-bold ${activeStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>{stageTotal !== null ? formatPrice(stageTotal) : 'Preis auf Anfrage'}</span>
                   </div>
                 </div>
               </PopoverContent>
@@ -387,7 +390,7 @@ export default function ConfiguratorResultPageV2() {
             </h3>
             <p className="text-white/70 text-sm mt-2 max-w-xl">
               Wir melden uns mit einem verbindlichen Angebot inkl. Termin auf unserem 4WD-Prüfstand.
-              Stage {activeStage} · Gesamtpreis ca. {formatPrice(stageTotal)}.
+              Stage {activeStage} · Gesamtpreis ca. {stageTotal !== null ? formatPrice(stageTotal) : 'Preis auf Anfrage'}.
             </p>
           </div>
           <Button
@@ -410,7 +413,7 @@ export default function ConfiguratorResultPageV2() {
           brand: vehicle.brand,
           model: vehicle.model,
           label: `Chiptuning · ${vehicle.brand} ${vehicle.model} · Stage ${activeStage}`,
-          priceLabel: `ca. ${formatPrice(stageTotal)}`,
+          priceLabel: `ca. ${stageTotal !== null ? formatPrice(stageTotal) : 'Preis auf Anfrage'}`,
         }}
       />
     </div>
