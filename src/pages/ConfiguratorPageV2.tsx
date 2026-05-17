@@ -225,6 +225,75 @@ export default function ConfiguratorPageV2() {
     }
   }, [form.fuel_type, selectedStage]);
 
+  const availableStageCards = (() => {
+    const fallbackStages = getAvailableStages(form.fuel_type).map((cfg) => ({
+      stageId: cfg.stageId,
+      title: cfg.label.split(' – ')[1] ?? cfg.label,
+      label: cfg.label,
+      hp: form.stock_hp > 0 ? form.stock_hp + Math.round(form.stock_hp * cfg.hpMultiplier) : null,
+      nm: form.stock_nm > 0 ? form.stock_nm + Math.round(form.stock_nm * cfg.nmMultiplier) : null,
+      deltaHp: form.stock_hp > 0 ? Math.round(form.stock_hp * cfg.hpMultiplier) : null,
+      deltaNm: form.stock_nm > 0 ? Math.round(form.stock_nm * cfg.nmMultiplier) : null,
+      price: getStageTotalPrice(cfg),
+      iconUrl: undefined as string | undefined,
+      risk: cfg.risk,
+      components: cfg.components,
+      isEco: cfg.stageId === ECO_STAGE_ID,
+      source: 'mock' as const,
+    }));
+
+    if (!apiData?.stages?.length) {
+      return fallbackStages;
+    }
+
+    const apiStages = apiData.stages.map((stage, index) => {
+      const stageId = index + 1;
+      const fallbackCfg = stageConfigs[index] ?? stageConfigs[0];
+      return {
+        stageId,
+        title: stage.name,
+        label: stage.name,
+        hp: stage.hp,
+        nm: stage.nm,
+        deltaHp: form.stock_hp > 0 ? Math.max(0, stage.hp - form.stock_hp) : null,
+        deltaNm: form.stock_nm > 0 ? Math.max(0, stage.nm - form.stock_nm) : null,
+        price: stage.price ?? null,
+        iconUrl: stage.iconUrl,
+        risk: fallbackCfg.risk,
+        components: (apiData.tuningOptions.length > 0 ? apiData.tuningOptions.map((option) => option.name) : fallbackCfg.components),
+        isEco: false,
+        source: 'api' as const,
+      };
+    });
+
+    if (form.fuel_type === 'diesel' && apiStages[0]) {
+      const ecoCfg = stageConfigs.find((cfg) => cfg.stageId === ECO_STAGE_ID) ?? stageConfigs[0];
+      apiStages.push({
+        stageId: ECO_STAGE_ID,
+        title: 'Verbrauchsoptimierung',
+        label: 'Eco Tuning – Verbrauchsoptimierung',
+        hp: Math.round(apiStages[0].hp * 0.95),
+        nm: Math.round(apiStages[0].nm * 0.95),
+        deltaHp: form.stock_hp > 0 ? Math.max(0, Math.round(apiStages[0].hp * 0.95) - form.stock_hp) : null,
+        deltaNm: form.stock_nm > 0 ? Math.max(0, Math.round(apiStages[0].nm * 0.95) - form.stock_nm) : null,
+        price: typeof apiStages[0].price === 'number' ? Math.round(apiStages[0].price * 0.9) : null,
+        iconUrl: undefined,
+        risk: ecoCfg.risk,
+        components: apiData.tuningOptions.length > 0 ? apiData.tuningOptions.map((option) => option.name) : ecoCfg.components,
+        isEco: true,
+        source: 'api' as const,
+      });
+    }
+
+    return apiStages;
+  })();
+
+  useEffect(() => {
+    if (!availableStageCards.some((stage) => stage.stageId === selectedStage)) {
+      setSelectedStage(availableStageCards[0]?.stageId ?? 1);
+    }
+  }, [availableStageCards, selectedStage]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
@@ -256,8 +325,9 @@ export default function ConfiguratorPageV2() {
     setAutoDetected(true);
   }, []);
 
-  const previewHp = form.stock_hp > 0 ? Math.round(form.stock_hp * stageConfigs[selectedStage - 1].hpMultiplier) : null;
-  const previewNm = form.stock_nm > 0 ? Math.round(form.stock_nm * stageConfigs[selectedStage - 1].nmMultiplier) : null;
+  const selectedStageCard = availableStageCards.find((stage) => stage.stageId === selectedStage);
+  const previewHp = selectedStageCard?.deltaHp ?? null;
+  const previewNm = selectedStageCard?.deltaNm ?? null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -403,45 +473,47 @@ export default function ConfiguratorPageV2() {
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 block">
                       Tuning-Stufe wählen
                     </span>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {getAvailableStages(form.fuel_type).map((cfg) => {
-                        const isActive = selectedStage === cfg.stageId;
-                        const isEco = cfg.stageId === ECO_STAGE_ID;
-                        const riskInfo = riskIcons[cfg.risk];
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                       {availableStageCards.map((stage) => {
+                         const isActive = selectedStage === stage.stageId;
+                         const isEco = stage.isEco;
+                         const riskInfo = riskIcons[stage.risk];
                         const accentText = isEco ? 'text-[hsl(var(--success))]' : 'text-destructive';
                         const accentBorder = isEco
                           ? 'border-[hsl(var(--success))] bg-[hsl(var(--success))]/5 ring-1 ring-[hsl(var(--success))]'
                           : 'border-destructive bg-destructive/5 ring-1 ring-destructive';
                         return (
                           <button
-                            key={cfg.stageId}
-                            type="button"
-                            onClick={() => setSelectedStage(cfg.stageId)}
+                             key={stage.stageId}
+                             type="button"
+                             onClick={() => setSelectedStage(stage.stageId)}
                             className={`relative text-left p-4 rounded-md border transition-all ${
                               isActive ? accentBorder : 'border-border bg-card hover:border-muted-foreground/30'
                             }`}
                           >
-                            {cfg.stageId === 1 && (<span className="absolute -top-2.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-[9px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full shadow-lg shadow-destructive/30 ring-1 ring-destructive/40"><Star className="h-2.5 w-2.5 fill-current" />Beliebt</span>)}
+                             {stage.stageId === 1 && (<span className="absolute -top-2.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-[9px] font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full shadow-lg shadow-destructive/30 ring-1 ring-destructive/40"><Star className="h-2.5 w-2.5 fill-current" />Beliebt</span>)}
                             <div className="flex items-center justify-between mb-2">
                               <span className={`text-xs font-bold uppercase tracking-wider ${isEco ? 'text-[hsl(var(--success))]' : isActive ? accentText : 'text-muted-foreground'}`}>
-                                {isEco ? (<><Leaf className="h-3 w-3 inline -mt-0.5 mr-0.5" />Eco</>) : cfg.stageId === 1 ? (<Stage1Icon className="h-6 w-auto" />) : cfg.stageId === 2 ? (<Stage2Icon className="h-6 w-auto" />) : `Stage ${cfg.stageId}`}
+                                 {isEco ? (<><Leaf className="h-3 w-3 inline -mt-0.5 mr-0.5" />Eco</>) : stage.iconUrl ? (<img src={stage.iconUrl} alt="" className="h-6 w-auto object-contain" loading="lazy" />) : stage.stageId === 1 ? (<Stage1Icon className="h-6 w-auto" />) : stage.stageId === 2 ? (<Stage2Icon className="h-6 w-auto" />) : `Stage ${stage.stageId}`}
                               </span>
                               <span className={`flex items-center gap-1 text-[10px] ${riskInfo.color}`}>
                                 {riskInfo.icon}{riskInfo.label}
                               </span>
                             </div>
-                            <p className="text-sm font-semibold text-foreground mb-1">{cfg.label.split(' – ')[1]}</p>
-                            <p className={`text-base font-bold mb-1 ${accentText}`}>ab {formatPrice(getStageTotalPrice(cfg))}</p>
+                             <p className="text-sm font-semibold text-foreground mb-1">{stage.title}</p>
+                             <p className={`text-base font-bold mb-1 ${accentText}`}>{typeof stage.price === 'number' ? `ab ${formatPrice(stage.price)}` : 'Preis auf Anfrage'}</p>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                              +{Math.round(cfg.hpMultiplier * 100)}% PS · +{Math.round(cfg.nmMultiplier * 100)}% Nm
+                               {stage.deltaHp !== null && stage.deltaNm !== null
+                                 ? `+${stage.deltaHp} PS · +${stage.deltaNm} Nm`
+                                 : 'Leistungsdaten werden geladen'}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {cfg.components.slice(0, 3).map((c) => (
+                               {stage.components.slice(0, 3).map((c) => (
                                 <span key={c} className="px-1.5 py-0.5 rounded-sm bg-secondary text-secondary-foreground text-[10px]">{c}</span>
                               ))}
-                              {cfg.components.length > 3 && (
+                               {stage.components.length > 3 && (
                                 <span className="px-1.5 py-0.5 rounded-sm bg-secondary text-secondary-foreground text-[10px]">
-                                  +{cfg.components.length - 3}
+                                   +{stage.components.length - 3}
                                 </span>
                               )}
                             </div>
@@ -457,9 +529,9 @@ export default function ConfiguratorPageV2() {
                       <span className="text-xs text-muted-foreground">{selectedStage === ECO_STAGE_ID ? 'Eco' : `Stage ${selectedStage}`} Prognose:</span>
                       <span className={`text-sm font-bold ${selectedStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>+{previewHp} PS</span>
                       <span className={`text-sm font-bold ${selectedStage === ECO_STAGE_ID ? 'text-[hsl(var(--success))]' : 'text-[hsl(210_80%_55%)]'}`}>+{previewNm} Nm</span>
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        → {form.stock_hp + previewHp} PS / {form.stock_nm + previewNm} Nm
-                      </span>
+                       <span className="text-xs text-muted-foreground ml-auto">
+                         → {(selectedStageCard?.hp ?? (form.stock_hp + previewHp))} PS / {(selectedStageCard?.nm ?? (form.stock_nm + previewNm))} Nm
+                       </span>
                     </div>
                   )}
 

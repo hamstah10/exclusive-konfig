@@ -99,8 +99,8 @@ export interface ConfiguratorResult {
     recommendation: Recommendation;
     dynoPoints: DynoDataPoint[];
     apiStage?: ApiStage;
-    /** Total price for this stage (API stage price, or fallback from mock). */
-    totalPrice: number;
+    /** Total price for this stage; null means price not provided by API. */
+    totalPrice: number | null;
   }[];
   apiData?: ConfiguratorApiData;
 }
@@ -200,50 +200,25 @@ export function generateRecommendation(
   const apiStages = apiData?.stages ?? [];
   const useApi = apiStages.length > 0;
 
-  const stages: ConfiguratorResult['stages'] = stageConfigs.map((cfg, idx) => {
-    // Map stage 1 → apiStages[0], stage 2 → apiStages[1], Eco → derived from apiStages[0]
-    let apiStage: ApiStage | undefined;
-    if (useApi) {
-      if (cfg.stageId === ECO_STAGE_ID) {
-        const base = apiStages[0];
-        if (base) {
-          apiStage = {
-            ...base,
-            id: -1,
-            name: 'Eco Tuning',
-            hp: Math.round((base.hp ?? vehicle.stock_hp) * 0.95),
-            nm: Math.round((base.nm ?? vehicle.stock_nm) * 0.95),
-            price: typeof base.price === 'number' ? Math.round(base.price * 0.9) : undefined,
-            description: undefined,
-            iconUrl: undefined,
-            imageUrls: undefined,
-          };
-        }
-      } else {
-        apiStage = apiStages[idx];
-      }
-    }
-
-    const estimatedHp = apiStage
-      ? Math.max(apiStage.hp, vehicle.stock_hp)
-      : vehicle.stock_hp + Math.round(vehicle.stock_hp * cfg.hpMultiplier);
-    const estimatedNm = apiStage
-      ? Math.max(apiStage.nm, vehicle.stock_nm)
-      : vehicle.stock_nm + Math.round(vehicle.stock_nm * cfg.nmMultiplier);
+  const buildStageEntry = (
+    cfg: StageConfig,
+    stageId: number,
+    estimatedHp: number,
+    estimatedNm: number,
+    stageLabel: string,
+    description: string,
+    components: string[],
+    apiStage?: ApiStage,
+    totalPrice: number | null = null,
+  ): ConfiguratorResult['stages'][number] => {
     const deltaHp = estimatedHp - vehicle.stock_hp;
     const deltaNm = estimatedNm - vehicle.stock_nm;
 
-    const stageLabel = apiStage?.name
-      ? (cfg.stageId === ECO_STAGE_ID ? 'Eco Tuning – Verbrauchsoptimierung' : apiStage.name)
-      : cfg.label;
-    const description = stripHtml(apiStage?.description) ?? cfg.description(vehicle);
-    const totalPrice = apiStage?.price ?? getStageTotalPrice(cfg);
-
     const recommendation: Recommendation = {
-      id: `rec-${id.slice(0, 8)}-s${cfg.stageId}`,
+      id: `rec-${id.slice(0, 8)}-s${stageId}`,
       created_at: new Date().toISOString(),
       vehicle_id: vehicle.id,
-      stage_id: cfg.stageId,
+      stage_id: stageId,
       stage_label: stageLabel,
       delta_hp: deltaHp,
       delta_nm: deltaNm,
@@ -252,13 +227,88 @@ export function generateRecommendation(
       risk_assessment: cfg.risk,
       description,
       disclaimer,
-      components: cfg.components,
+      components,
     };
 
     const dynoPoints = generateDynoCurve(estimatedHp, estimatedNm, peakHpRpm, peakNmRpm);
-
     return { recommendation, dynoPoints, apiStage, totalPrice };
-  });
+  };
+
+  const apiComponents = (apiData?.tuningOptions ?? [])
+    .map((option) => option.name.trim())
+    .filter((name) => name.length > 0);
+
+  const stages: ConfiguratorResult['stages'] = useApi
+    ? (() => {
+        const mappedStages = apiStages.map((apiStage, index) => {
+          const stageId = index + 1;
+          const fallbackCfg = stageConfigs[index] ?? stageConfigs[stageConfigs.length - 1];
+          const estimatedHp = Math.max(apiStage.hp, vehicle.stock_hp);
+          const estimatedNm = Math.max(apiStage.nm, vehicle.stock_nm);
+          const description = stripHtml(apiStage.description) ?? fallbackCfg.description(vehicle);
+          const components = apiComponents.length > 0 ? apiComponents : fallbackCfg.components;
+
+          return buildStageEntry(
+            fallbackCfg,
+            stageId,
+            estimatedHp,
+            estimatedNm,
+            apiStage.name || `Stage ${stageId}`,
+            description,
+            components,
+            apiStage,
+            typeof apiStage.price === 'number' ? apiStage.price : null,
+          );
+        });
+
+        if (vehicle.fuel_type === 'diesel' && apiStages[0]) {
+          const ecoCfg = stageConfigs.find((cfg) => cfg.stageId === ECO_STAGE_ID) ?? stageConfigs[0];
+          const baseStage = apiStages[0];
+          const ecoStage: ApiStage = {
+            ...baseStage,
+            id: -1,
+            name: 'Eco Tuning – Verbrauchsoptimierung',
+            hp: Math.round(baseStage.hp * 0.95),
+            nm: Math.round(baseStage.nm * 0.95),
+            price: typeof baseStage.price === 'number' ? Math.round(baseStage.price * 0.9) : undefined,
+            description: undefined,
+            iconUrl: undefined,
+            imageUrls: undefined,
+          };
+
+          mappedStages.push(
+            buildStageEntry(
+              ecoCfg,
+              ECO_STAGE_ID,
+              ecoStage.hp,
+              ecoStage.nm,
+              ecoStage.name,
+              ecoCfg.description(vehicle),
+              apiComponents.length > 0 ? apiComponents : ecoCfg.components,
+              ecoStage,
+              typeof ecoStage.price === 'number' ? ecoStage.price : null,
+            ),
+          );
+        }
+
+        return mappedStages;
+      })()
+    : getAvailableStages(vehicle.fuel_type).map((cfg) => {
+        const estimatedHp = vehicle.stock_hp + Math.round(vehicle.stock_hp * cfg.hpMultiplier);
+        const estimatedNm = vehicle.stock_nm + Math.round(vehicle.stock_nm * cfg.nmMultiplier);
+
+        return buildStageEntry(
+          cfg,
+          cfg.stageId,
+          estimatedHp,
+          estimatedNm,
+          cfg.label,
+          cfg.description(vehicle),
+          cfg.components,
+          undefined,
+          getStageTotalPrice(cfg),
+        );
+      });
 
   const result: ConfiguratorResult = {
     id,
